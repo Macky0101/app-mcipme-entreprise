@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { VerifyOtp } from './../../services/apiService'; // Importez la fonction VerifyOtp depuis le service API
-import { useRoute } from '@react-navigation/native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { VerifyOtp } from './../../services/apiService'; // Assurez-vous d'importer correctement la fonction
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const OTPScreen = () => {
   const navigation = useNavigation();
@@ -11,44 +10,44 @@ const OTPScreen = () => {
 
   const verifyAOTP = async () => {
     try {
-      // Récupérez l'e-mail passé en paramètre
       const email = route.params.email;
-      // Appelez la fonction VerifyOtp avec l'e-mail, la valeur et le code OTP
       const response = await VerifyOtp(email, email, otp);
-      console.log('Réponse de vérification du code OTP:', response);
-      
-      // Vérifier si la réponse indique que la vérification du code OTP a réussi
+
+      console.log('Réponse de vérification OTP:', response);
+
       if (response.status === 'success') {
-        // Le code OTP est correct, naviguez vers la page suivante
+        // Naviguer vers la page suivante
         navigation.reset({
           index: 0,
           routes: [{ name: 'BottomTabNavigator' }],
         });
-        // navigation.navigate('BottomTabNavigator');
       } else {
-        // Le code OTP est incorrect, affichez un message d'erreur à l'utilisateur
-        alert('Le code OTP est incorrect. Veuillez réessayer.');
+        // Afficher un message d'erreur
+        Alert.alert('Erreur', 'Le code OTP est incorrect. Veuillez réessayer.');
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification du code OTP:', error);
-      // Gérez les erreurs ici
+      console.error('Erreur lors de la vérification OTP:', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite. Veuillez réessayer.');
     }
   };
-  
-  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Vérification OTP</Text>
-      <Text style={styles.subtitle}>Entrez le code que vous avez reçu</Text>
+      <Text style={styles.subtitle}>Entrez le code que vous avez reçu par e-mail</Text>
+      
       <TextInput
         style={styles.input}
         onChangeText={setOtp}
         value={otp}
         keyboardType="numeric"
-        placeholder="Entrez OTP"
+        placeholder="Entrez le code OTP"
+        maxLength={6} // Limite à 6 caractères pour un OTP standard
       />
-      <Button title="Vérifier" onPress={verifyAOTP} />
+      
+      <TouchableOpacity style={styles.button} onPress={verifyAOTP}>
+        <Text style={styles.buttonText}>Vérifier</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -58,24 +57,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
+    backgroundColor: '#f5f5f5', // Couleur d'arrière-plan apaisante
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
+    color: '#333', // Couleur de texte foncée
   },
   subtitle: {
     fontSize: 18,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
+    color: '#666', // Couleur de texte plus claire
   },
   input: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
+    borderRadius: 5, // Coins arrondis
     paddingLeft: 10,
+    backgroundColor: '#fff', // Couleur d'arrière-plan blanche
     marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#009900', // Couleur du bouton
+    padding: 15,
+    borderRadius: 7, // Coins arrondis
+  },
+  buttonText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#fff', // Couleur du texte blanche
   },
 });
 

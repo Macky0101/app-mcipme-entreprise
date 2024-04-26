@@ -33,29 +33,29 @@ const styles = StyleSheet.create({
     flex: 1,
     // backgroundColor: 'rgba(000, 000, 000, 0.1)',
     backgroundColor:'#ccefff',
-    padding: 15,
-    marginHorizontal: 5,
+    padding: 16,
+    marginHorizontal: 2,
   },
   card2: {
     flex: 1,
     // backgroundColor: 'rgba(000, 000, 000, 0.1)',
     backgroundColor:'#fff9cc',
-    padding: 15,
-    marginHorizontal: 5,
+    padding: 16,
+    marginHorizontal: 2,
   },
   card3: {
     flex: 1,
     // backgroundColor: 'rgba(000, 000, 000, 0.1)',
     backgroundColor:'#ccffcc',
-    padding: 15,
-    marginHorizontal: 5,
+    padding: 16,
+    marginHorizontal: 2,
   },
   card4: {
     flex: 1,
     // backgroundColor: 'rgba(000, 000, 000, 0.1)',
     backgroundColor:'#ffcccc',
-    padding: 15,
-    marginHorizontal: 5,
+    padding: 16,
+    marginHorizontal: 2,
   },
   head: {
     flexDirection: 'row',
@@ -65,11 +65,12 @@ const styles = StyleSheet.create({
   total: {
     color: 'red',
     fontSize: 24,
-    marginTop: 5
+    marginTop: 0
   },
   sectionCommand:{
     flexDirection:'row',
-    justifyContent:'space-between'
+    justifyContent:'space-between',
+    // marginTop:10
   },
   title:{
     fontSize:16,

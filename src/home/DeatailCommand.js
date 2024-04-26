@@ -1,13 +1,46 @@
 import React from 'react';
-import { View, Text, SafeAreaView, FlatList, StyleSheet } from 'react-native';
+import { View, Text, SafeAreaView, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { MaterialIcons } from 'react-native-vector-icons'; // Importer la bibliothèque d'icônes
+import { MaterialIcons } from 'react-native-vector-icons';
+import { ValiderCommande } from './../../services/stock.Service';
 
-const AddCommandeScreen = () => {
+const AddCommandeScreen = ({ navigation }) => {
   const route = useRoute();
   const { commande } = route.params;
 
   const getStatusBackgroundColor = (status) => (status === '1' ? 'lightgreen' : 'lightcoral');
+
+  const handleStatusClick = async () => {
+    if (commande.CommandeValider === '1') {
+      Alert.alert("Information", "Cette commande est déjà validée.");
+      return;
+    }
+
+    Alert.alert(
+      "Validation de la commande",
+      "Voulez-vous vraiment valider cette commande ?",
+      [
+        {
+          text: "Annuler",
+          style: "cancel",
+        },
+        {
+          text: "Valider",
+          onPress: async () => {
+            try {
+              const response = await ValiderCommande(commande.code);
+              console.log('macky',response);
+              Alert.alert("Succès", "La commande a été validée.");
+              navigation.goBack(); // Retour à l'écran précédent ou rafraîchissement
+            } catch (error) {
+              Alert.alert("Erreur", "La validation de la commande a échoué.");
+            }
+          },
+        },
+      ],
+      { cancelable: true } // Permet de fermer l'alerte en cliquant en dehors
+    );
+  };
 
   const renderProduit = ({ item }) => (
     <View style={styles.card}>
@@ -45,7 +78,7 @@ const AddCommandeScreen = () => {
           <Text style={{ paddingBottom: 5 }}>Code: {commande.CodeCommande}</Text>
           <Text>Date: {commande.DateCommande}</Text>
         </View>
-        <View>
+        <TouchableOpacity onPress={handleStatusClick}>
           <Text
             style={{
               backgroundColor: getStatusBackgroundColor(commande.CommandeValider),
@@ -55,7 +88,7 @@ const AddCommandeScreen = () => {
           >
             Statut: {commande.CommandeValider === '1' ? 'Validée' : 'En attente'}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.sectionTitle}>Produits</Text>
@@ -106,7 +139,6 @@ const styles = StyleSheet.create({
   cardRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10, // Espace entre l'icône et le texte
   },
 });
 

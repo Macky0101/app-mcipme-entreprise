@@ -20,13 +20,13 @@ const LoginPage = () => {
       // Appel de la fonction login du service API
       const response = await login(email, password);
       // Gérer la réponse de l'API selon vos besoins
-      console.log('Réponse de l\'API:', response.data.user);
-      console.log('code Mpme:', response.data.user.Entreprises);
+      //console('Réponse de l\'API:', response.data.user);
+      //console('code Mpme:', response.data.user.Entreprises);
       await AsyncStorage.setItem('code_Mpme', response.data.user.Entreprises);
 
       const otpResponse = await SendOtp(email); // Premier appel à SendOtp
       // Afficher le code OTP dans la console
-      console.log('Code OTP envoyé:', otpResponse.code);
+      //console('Code OTP envoyé:', otpResponse.code);
       // Désactiver le chargement
       setLoading(false);
       // Naviguer vers l'écran OTPScreens après la connexion réussie et passer l'e-mail de l'utilisateur
@@ -42,7 +42,7 @@ const LoginPage = () => {
       }, 3000);
       const otpResponse = await SendOtp(email); // Deuxième appel à SendOtp en cas d'erreur
       // Afficher le code OTP dans la console
-      console.log('Code OTP envoyé:', otpResponse.code);
+      //console('Code OTP envoyé:', otpResponse.code);
     }
   };
   
@@ -102,6 +102,18 @@ const LoginPage = () => {
               ) : null}
             </View>
           </KeyboardAvoidingView>
+          
+
+
+          <TouchableOpacity
+         onPress={() => navigation.navigate('DemandeOtorisation')}
+         style={styles.button}
+         activeOpacity={0.7} 
+         >
+      <Text style={styles.buttonText}>S'inscrire</Text>
+         </TouchableOpacity>
+
+
         </ScrollView>
       </View>
      </SafeAreaView>

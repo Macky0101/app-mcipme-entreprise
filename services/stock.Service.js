@@ -13,7 +13,7 @@ export const ListCommand = async () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/commandes`);
-    console.log('Liste des commandes:', response.data);
+    // //console('Liste des commandes:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -26,7 +26,7 @@ export const DetailCommand = async (id) => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/commandes/${id}`);
-    console.log('Liste des commandes:', response.data);
+    // //console('Liste des commandes:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -58,7 +58,7 @@ export const ListProduits = async () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/produits`);
-    console.log('Liste des produits:', response.data);
+    //console('Liste des produits:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -73,7 +73,7 @@ export const ListFournisseurs = async () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/liste-entreprise-importatrices-exportatrices`);
-    console.log('Liste des fournisseurs:', response.data);
+    //console('Liste des fournisseurs:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -90,18 +90,17 @@ export const AjoutCommand = async (nouvelleCommande) => {
     if (!nouvelleCommande.commandeDate) {
       throw new Error('La date de commande est requise.');
     }
-    
-    if (!nouvelleCommande.items || nouvelleCommande.items.length === 0) {
-      throw new Error('Au moins un produit doit être inclus dans la commande.');
-    }
-    
+    const codeMPME = await AsyncStorage.getItem('code_Mpme'); 
+
     const response = await axiosInstance.post('/commandes', {
       commandeDate: nouvelleCommande.commandeDate,
-      CodeMpme: "MPME-139440-2024", // Si requis
-      produits: nouvelleCommande.produits, // Les produits inclus dans la commande
+      CodeMpme: codeMPME, 
+      items: nouvelleCommande.items, 
+      CodeEntrepriseFournisseur: nouvelleCommande.CodeEntrepriseFournisseur,
+      PaysDeProvenance: nouvelleCommande.PaysDeProvenance
     });
 
-    console.log('Nouvelle commande ajoutée:', response.data);
+    //console('Nouvelle commande ajoutée:', response.data);
     return response.data; // Retour des données ajoutées
   } catch (error) {
     console.error("Erreur lors de l'enregistrement de la nouvelle commande:", error.message || error);
@@ -112,3 +111,19 @@ export const AjoutCommand = async (nouvelleCommande) => {
   }
 };
 
+export const ValiderCommande = async (code) => {
+  try {
+    const token = await AsyncStorage.getItem('@token');
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const response = await axiosInstance.post('/commandes/pme/validation', {code});
+
+    console('commande validée:', response.data);
+    return response.data; // Retour des données ajoutées
+  } catch (error) {
+    console.error("Erreur lors de la validation de la commande:", error.message || error);
+    if (error.response) {
+      console.error("Détails de l'erreur:", error.response.data); // Informations supplémentaires
+    }
+    throw error; // Pour permettre au code appelant de gérer l'erreur
+  }
+};

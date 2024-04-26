@@ -91,6 +91,25 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 10,
       },
+      button: {
+        flexDirection: 'row',
+        alignItems: 'center', // Alignement horizontal
+        justifyContent: 'center', // Centrer le contenu
+        backgroundColor: '#000000', // Bleu attractif
+        paddingVertical: 10, // Pour donner de l'espace
+        paddingHorizontal: 20, // Pour donner de l'espace
+        borderRadius: 8, // Coins arrondis
+        shadowColor: '#000', // Couleur de l'ombre
+        shadowOffset: { width: 0, height: 2 }, // Position de l'ombre
+        shadowOpacity: 0.3, // Opacité de l'ombre
+        shadowRadius: 4, // Rayon de l'ombre
+        elevation: 5, // Pour Android, donner de la profondeur
+      },
+      buttonText: {
+        color: '#fff', // Texte en blanc pour le contraste
+        fontWeight: 'bold', // Texte en gras pour visibilité
+        marginLeft: 8, // Pour l'espace entre l'icône et le texte
+      },
   });
   
 export default styles

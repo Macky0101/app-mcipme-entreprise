@@ -12,6 +12,7 @@ import Personnels from './../src/profile/personnels';
 import DirigeantProprietaire from './../src/profile/dirigeantProprietaire';
 import DetailCommande from './../src/home/DeatailCommand';
 import AddCommandeScreen from './../src/home/AjoutCommand';
+import DemandeOtorisation from './../src/Demande/DemandeOtorisation';
 
 
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,7 @@ const Routes = () => {
         <Stack.Screen name="DirigeantProprietaire" component={DirigeantProprietaire} />
         <Stack.Screen name="DetailCommande" component={DetailCommande} />
         <Stack.Screen name="AddCommandeScreen" component={AddCommandeScreen} />
+        <Stack.Screen name="DemandeOtorisation" component={DemandeOtorisation} />
       </Stack.Navigator>
     </NavigationContainer>
   );

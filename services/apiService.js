@@ -15,9 +15,9 @@ export const login = async (email, password) => {
 
     // Stocker le token et les informations de l'utilisateur dans AsyncStorage
     const { access_token, user } = response.data.data; // Assurez-vous que c'est le bon chemin pour accéder au token et aux informations de l'utilisateur dans la réponse
-    //console.log('Mackycamara:', access_token); // Afficher le token dans la console
-    //console.log('User:', user); // Afficher les informations de l'utilisateur dans la console
-    console.log('jjjjjjjjjjjjj',response.data.data)
+    // console.log('Mackycamara:', access_token); // Afficher le token dans la console
+    console.log('User:', user); // Afficher les informations de l'utilisateur dans la console
+    // console.log('jjjjjjjjjjjjj',response.data.data)
 
     await AsyncStorage.setItem('@token', access_token);
     await AsyncStorage.setItem('@user', JSON.stringify(user));
@@ -83,9 +83,6 @@ export const logout = async () => {
     throw error;
   }
 };
-
-
-
 // recuperer les infos de user
 export const getUserData = async (codeMPME) => {
   try {
@@ -102,6 +99,36 @@ export const getUserData = async (codeMPME) => {
     
     console.log('User data Macky:', response.data); // Afficher les données de l'utilisateur dans la console
 
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+//List types demande
+export const ListTypeDemande = async () => {
+  try {
+    // Utilisez await pour attendre la promesse
+    const response = await axiosInstance.get('/type-demandes'); 
+    if (response.status === 200 && response.data) {
+      // Assurez-vous que data existe et contient ce que vous attendez
+      console.log('Liste des types de demande:', response.data); 
+      return response.data; // Renvoie la partie "data"
+    } else {
+      throw new Error('La réponse de l\'API n\'est pas comme attendu.');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des types de demande:', error);
+    throw error;
+  }
+};
+//demande
+export const demande = async (demandeData) => {
+  try {
+    const response = await axiosInstance.post('/demande-autorisations', demandeData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Pour accepter les fichiers
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;
