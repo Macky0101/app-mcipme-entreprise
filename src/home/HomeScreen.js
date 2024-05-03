@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView ,FlatList,TextInput, Alert} from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView ,FlatList,TextInput, Alert,Modal, Button} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from './styles';
 import { ListCommand ,DeleteCommand } from './../../services/stock.Service';
 import {DetailCommand} from './../../services/stock.Service';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// Récupérer les types d'entreprise depuis AsyncStorage
+const getIntituleTypes = async () => {
+  const intituleTypesJson = await AsyncStorage.getItem('@intituleTypes');
+  return intituleTypesJson ? JSON.parse(intituleTypesJson) : [];
+};
 
 const HomeScreen = () => {
   const route = useRoute(); 
@@ -17,6 +22,50 @@ const HomeScreen = () => {
   const [commandesValidees, setCommandesValidees] = useState(0);
   const [commandesEnAttente, setCommandesEnAttente] = useState(0);
   const [commandesAnnulees, setCommandesAnnulees] = useState(0);
+  const [showTypeModal, setShowTypeModal] = useState(false);
+  const [intituleTypes, setIntituleTypes] = useState([]);
+
+    // Récupérer les types d'entreprise à l'ouverture du composant
+    useEffect(() => {
+      const fetchIntituleTypes = async () => {
+        try {
+          const types = await getIntituleTypes();
+          // console.log('IntituleTypes récupérés macky:', types); // Log pour voir le contenu
+          setIntituleTypes(types || []); // Utiliser un tableau vide par défaut si `types` est `undefined`
+        } catch (error) {
+          // console.error('Erreur lors de la récupération des types d\'entreprise:', error); // Log pour afficher les erreurs
+          setIntituleTypes([]); // Si une erreur survient, utiliser un tableau vide
+        }
+      };
+    
+      fetchIntituleTypes();
+    }, []);
+    
+
+    const handleAddButtonPress = () => {
+      console.log('Types d\'entreprise disponibles:', intituleTypes);
+    
+      // Si les deux types sont présents, ouvrir un modal pour choisir l'intention
+      if (
+        intituleTypes.includes('ENTREPRISE IMPORTATRICE') &&
+        intituleTypes.includes('ENTREPRISE DISTRIBUTRICE')
+      ) {
+        setShowTypeModal(true); // Afficher le modal
+      } else {
+        const isImporter = intituleTypes.includes('ENTREPRISE IMPORTATRICE');
+        console.log("Naviguer avec isImporter:", isImporter); // Log pour voir le paramètre de navigation
+        navigation.navigate('AddCommandeScreen', { isImporter });
+      }
+    };
+    
+
+    const handleTypeChoice = (isImporter) => {
+      setShowTypeModal(false);
+      console.log("Navigation vers AddCommandeScreen avec isImporter:", isImporter); // Log pour voir le paramètre
+      navigation.navigate('AddCommandeScreen', { isImporter });
+    };
+
+    
 
   const handleSearch = (text) => {
     setSearchText(text);
@@ -53,9 +102,9 @@ const HomeScreen = () => {
     const fetchCommands = async () => {
       try {
         const response = await ListCommand();
-        //console.log('Liste des commandes :', response.data);
+        // console.log('Liste des commandes :', response.data);
         setCommands(response.data);
-                // Calculer le total des commandes
+                // Calculer le total des commandesapi/commandes
                 const total = response.data.length;
                 setTotalCommandes(total);
         
@@ -97,7 +146,7 @@ const HomeScreen = () => {
         <TouchableOpacity 
         style={styles.head}
         onPress={() => {
-          navigation.navigate("DetailCommande", { commande: item });  // Passer les données lors de la navigation
+          navigation.navigate("DetailCommand", { commande: item });  // Passer les données lors de la navigation
         }}
         onLongPress={() => onLongPress(item)}
         >
@@ -174,11 +223,45 @@ const HomeScreen = () => {
 
           <View style={styles.sectionCommand}>
             <Text style={styles.title}>La liste des commandes:</Text>
-            <TouchableOpacity
-            onPress={() => navigation.navigate("AddCommandeScreen")}
-          >
-          <MaterialIcons name="add" size={28} color="black" style={{ color: 'blue' }} />
+            <TouchableOpacity onPress={handleAddButtonPress}>
+          <MaterialIcons name="add" size={28} color="black" />
         </TouchableOpacity>
+
+        {showTypeModal && (
+          <Modal
+            transparent
+            animationType="fade" // Option d'animation
+            visible={showTypeModal}
+            onRequestClose={() => setShowTypeModal(false)}
+          >
+            <View style={styles.modalBackground}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Choisir une action</Text>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => handleTypeChoice(true)} // Pour importer
+                >
+                  <Text style={styles.modalButtonText}>Importer des produits</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => handleTypeChoice(false)} // Pour distribuer
+                >
+                  <Text style={styles.modalButtonText}>Distribuer des produits</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setShowTypeModal(false)}
+                >
+                  <MaterialIcons name="close" size={24} color="red" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        )}
+
+
+
           </View>
           <View style={styles.head}>
             <Text style={styles.title}>Code</Text>

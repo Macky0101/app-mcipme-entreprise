@@ -12,8 +12,22 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { ListProduits, ListFournisseurs, AjoutCommand } from './../../services/stock.Service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AddCommandeScreen = ({ navigation }) => {
+// Fonction pour récupérer les types d'entreprise de AsyncStorage
+const fetchIntituleTypes = async () => {
+  const intituleTypesJson = await AsyncStorage.getItem('@intituleTypes');
+  return intituleTypesJson ? JSON.parse(intituleTypesJson) : [];
+};
+
+const AddCommandeScreen = ({ route, navigation }) => {
+  const { isImporter} = route.params || {}; // Récupérer le paramètre
+  console.log("variable",isImporter);
+  console.log("isImporter récupéré:", isImporter);
+  
+  const [showFournisseur, setShowFournisseur] = useState(!isImporter); // Afficher le fournisseur si ce n'est pas pour importer
+  const [showPaysProvenance, setShowPaysProvenance] = useState(isImporter); // Afficher le pays de provenance si c'est pour importer
+
   const [commandeDate, setCommandeDate] = useState('');
   const [items, setProduits] = useState([]);
   const [produitList, setProduitList] = useState([]);
@@ -24,6 +38,19 @@ const AddCommandeScreen = ({ navigation }) => {
   const [isFournisseurModalVisible, setFournisseurModalVisible] = useState(false);
   const [isProduitModalVisible, setProduitModalVisible] = useState(false);
 
+  const [mpmeFour, setMpmeFour] = useState(null); 
+
+  useEffect(() => {
+    const getMpmeFourier = async() => {
+      const codeMPME =  await AsyncStorage.getItem('codeMPMEs');
+      if (isImporter) {
+        setMpmeFour(codeMPME)
+      }
+    }
+    getMpmeFourier();
+  },[showFournisseur]);
+
+
   const [newProduit, setNewProduit] = useState({
     ProduitId: '',
     DateImportation: '',
@@ -31,6 +58,42 @@ const AddCommandeScreen = ({ navigation }) => {
     QuantiteImporter: '',
     PaysDeProvenance: '',
   });
+
+
+
+
+
+
+ // Charger les types d'entreprise et ajuster l'état
+ useEffect(() => {
+  const fetchData = async () => {
+    const intituleTypes = await fetchIntituleTypes();
+
+    console.log("IntituleTypes récupérés:", intituleTypes);
+
+    if (intituleTypes.includes("ENTREPRISE IMPORTATRICE")) {
+      // Afficher le pays de provenance si l'entreprise importe
+      setShowPaysProvenance(true);
+    } else {
+      // Sinon, masquer le pays de provenance
+      setShowPaysProvenance(false);
+    }
+
+    if (intituleTypes.includes("ENTREPRISE DISTRIBUTRICE")) {
+      // Afficher le fournisseur si l'entreprise distribue
+      setShowFournisseur(true);
+    } else {
+      // Sinon, masquer le fournisseur
+      setShowFournisseur(false);
+    }
+  };
+
+  fetchData(); // Appel asynchrone pour obtenir les types
+}, []); // Exécuter une fois à l'initialisation
+
+
+
+
 
   useEffect(() => {
     const fetchProduits = async () => {
@@ -101,13 +164,12 @@ const AddCommandeScreen = ({ navigation }) => {
       Alert.alert('Erreur', 'Produit non trouvé.');
       return;
     }
-
     const newProduct = {
       ProduitId: produitToAdd.id,
       DateImportation: DateImportation,
       QuantiteCommande: parseInt(QuantiteCommande),
       QuantiteImporter: parseInt(QuantiteImporter),
-      CodeEntrepriseFournisseur: selectedFournisseur.CodeMpme,
+      CodeEntrepriseFournisseur: selectedFournisseur?.CodeMpme||mpmeFour,
       PaysDeProvenance: newProduit.PaysDeProvenance,
     };
 
@@ -133,11 +195,13 @@ const AddCommandeScreen = ({ navigation }) => {
       return;
     }
 
+
     const newCommande = {
       commandeDate,
-      CodeMpme: selectedFournisseur?.CodeMpme || null,
+      CodeMpme: selectedFournisseur?.CodeMpme || mpmeFour,
       items,
     };
+
 
     try {
       const response = await AjoutCommand(newCommande);
@@ -165,13 +229,19 @@ const AddCommandeScreen = ({ navigation }) => {
             placeholder="Entrez la date de commande"
           />
 
-          <Text>Fournisseur:</Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={openFournisseurModal}
-          >
-            <Text>{selectedFournisseur?.pme?.SigleMpme || 'Sélectionnez un fournisseur'}</Text>
-          </TouchableOpacity>
+       {/* Affichage conditionnel du fournisseur */}
+{!isImporter && (
+  <>
+    <Text>Fournisseur:</Text>
+    <TouchableOpacity
+      style={styles.button}
+      onPress={openFournisseurModal}
+    >
+      <Text>{selectedFournisseur?.pme?.SigleMpme || 'Sélectionnez un fournisseur'}</Text>
+    </TouchableOpacity>
+  </>
+)}
+
 
           <Text>Produit:</Text>
           <TouchableOpacity
@@ -205,13 +275,18 @@ const AddCommandeScreen = ({ navigation }) => {
             placeholder="Entrez la quantité importée"
           />
           
-          <Text>Pays de Provenance:</Text>
-          <TextInput
-            style={styles.input}
-            value={newProduit.PaysDeProvenance}
-            onChangeText={(text) => setNewProduit({ ...newProduit, PaysDeProvenance: text })}
-            placeholder="Entrez le pays de provenance"
-          />
+        {/* Affichage conditionnel du pays de provenance */}
+        {isImporter && (
+          <>
+            <Text>Pays de Provenance:</Text>
+            <TextInput
+              style={styles.input}
+              value={newProduit.PaysDeProvenance}
+              onChangeText={(text) => setNewProduit({ ...newProduit, PaysDeProvenance: text })}
+              placeholder="Entrez le pays de provenance"
+            />
+          </>
+        )}
 
           <Button title="Ajouter le Produit" onPress={handleAddProduct} />
 

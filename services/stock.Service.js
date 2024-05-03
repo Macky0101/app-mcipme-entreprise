@@ -13,7 +13,7 @@ export const ListCommand = async () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/commandes`);
-    // //console('Liste des commandes:', response.data);
+    // console.log('Liste des commandes:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -26,7 +26,7 @@ export const DetailCommand = async (id) => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/commandes/${id}`);
-    // //console('Liste des commandes:', response.data);
+    // //console.log('Liste des commandes:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -90,8 +90,10 @@ export const AjoutCommand = async (nouvelleCommande) => {
     if (!nouvelleCommande.commandeDate) {
       throw new Error('La date de commande est requise.');
     }
-    const codeMPME = await AsyncStorage.getItem('code_Mpme'); 
+    // Récupération du code MPME
+    const codeMPME = await AsyncStorage.getItem('codeMPMEs');
 
+    
     const response = await axiosInstance.post('/commandes', {
       commandeDate: nouvelleCommande.commandeDate,
       CodeMpme: codeMPME, 
@@ -100,10 +102,10 @@ export const AjoutCommand = async (nouvelleCommande) => {
       PaysDeProvenance: nouvelleCommande.PaysDeProvenance
     });
 
-    //console('Nouvelle commande ajoutée:', response.data);
+    //console.log('Nouvelle commande ajoutée:', response.data);
     return response.data; // Retour des données ajoutées
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement de la nouvelle commande:", error.message || error);
+    console.error("Erreur lors de l'enregistrement de la nouvelle commande:", error.message || error, );
     if (error.response) {
       console.error("Détails de l'erreur:", error.response.data); // Informations supplémentaires
     }
@@ -117,7 +119,7 @@ export const ValiderCommande = async (code) => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     const response = await axiosInstance.post('/commandes/pme/validation', {code});
 
-    console('commande validée:', response.data);
+    console.log('commande validée:', response.data);
     return response.data; // Retour des données ajoutées
   } catch (error) {
     console.error("Erreur lors de la validation de la commande:", error.message || error);

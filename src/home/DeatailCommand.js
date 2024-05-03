@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import { MaterialIcons } from 'react-native-vector-icons';
 import { ValiderCommande } from './../../services/stock.Service';
 
-const AddCommandeScreen = ({ navigation }) => {
+const DetailCommand = ({ navigation }) => {
   const route = useRoute();
   const { commande } = route.params;
 
@@ -28,10 +28,12 @@ const AddCommandeScreen = ({ navigation }) => {
           text: "Valider",
           onPress: async () => {
             try {
-              const response = await ValiderCommande(commande.code);
-              console.log('macky',response);
+              const response = await ValiderCommande(commande.CodeCommande);
+              // console.log('macky',response);
               Alert.alert("Succès", "La commande a été validée.");
-              navigation.goBack(); // Retour à l'écran précédent ou rafraîchissement
+              // navigation.goBack(); // Retour à l'écran précédent ou rafraîchissement
+              navigation.navigate('HomeScreen', { refresh: true });
+
             } catch (error) {
               Alert.alert("Erreur", "La validation de la commande a échoué.");
             }
@@ -142,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddCommandeScreen;
+export default DetailCommand;

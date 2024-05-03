@@ -22,7 +22,7 @@ const ProfileScreen = ({ navigation }) => {
             try {
               await logout(); // Appeler la fonction de déconnexion
               // Rediriger l'utilisateur vers l'écran de connexion par exemple
-              navigation.navigate('Login'); // Assurez-vous de remplacer 'Login' par le nom de votre écran de connexion
+              navigation.navigate('PinScreen'); 
             } catch (error) {
               console.error('Error logging out:', error);
             }
@@ -84,6 +84,14 @@ const ProfileScreen = ({ navigation }) => {
          >
           <MaterialIcons name="person" size={24} color="black" style={{paddingTop:5, marginRight:5}} />
           <Text style={styles.titreProfilDetail}>Dirigeant/proprietaire</Text>
+         </TouchableOpacity>
+         <View style={styles.separator} />
+         <TouchableOpacity
+         onPress={() => navigation.navigate('ChangePasswordScreen')}
+         style={styles.nav}
+         >
+          <MaterialIcons name="build" size={24} color="black" style={{paddingTop:5, marginRight:5}} />
+          <Text style={styles.titreProfilDetail}>Change mot de passe</Text>
          </TouchableOpacity>
          <View style={styles.separator} />
 

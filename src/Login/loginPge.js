@@ -14,19 +14,35 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false); // État pour suivre le chargement
 
+  // Fonction qui extrait les IntituleType des types d'entreprise
+const getIntituleTypes = (typesEntreprise) => {
+  // Extrait les IntituleType du tableau de typesEntreprise
+  return typesEntreprise.map((type) => type.type_entreprise.IntituleType);
+};
+
   const handleSubmit = async () => {
     try {
       setLoading(true); // Activer le chargement
       // Appel de la fonction login du service API
       const response = await login(email, password);
+
+
+
+    // Extraire et stocker les IntituleType des types d'entreprise
+    const intituleTypes = getIntituleTypes(response.data.typesEntreprise);
+    await AsyncStorage.setItem('@intituleTypes', JSON.stringify(intituleTypes));
+    
+    // console.log('IntituleTypes stockés:', intituleTypes);
+
+
       // Gérer la réponse de l'API selon vos besoins
-      //console('Réponse de l\'API:', response.data.user);
-      //console('code Mpme:', response.data.user.Entreprises);
+      // console.log('Réponse de l\'API:', response.data.user);
+      console.log('code Mpme:', response.data.user.Entreprises);
       await AsyncStorage.setItem('code_Mpme', response.data.user.Entreprises);
 
       const otpResponse = await SendOtp(email); // Premier appel à SendOtp
       // Afficher le code OTP dans la console
-      //console('Code OTP envoyé:', otpResponse.code);
+      //console.log('Code OTP envoyé:', otpResponse.code);
       // Désactiver le chargement
       setLoading(false);
       // Naviguer vers l'écran OTPScreens après la connexion réussie et passer l'e-mail de l'utilisateur
@@ -42,11 +58,10 @@ const LoginPage = () => {
       }, 3000);
       const otpResponse = await SendOtp(email); // Deuxième appel à SendOtp en cas d'erreur
       // Afficher le code OTP dans la console
-      //console('Code OTP envoyé:', otpResponse.code);
+      //console.log('Code OTP envoyé:', otpResponse.code);
     }
   };
   
-
   return (
      <SafeAreaView style={styles.safeAreaView}>
       <View style={styles.container}>
