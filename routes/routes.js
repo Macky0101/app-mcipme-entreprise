@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginPage from '../src/Login/loginPge';
 import PinScreen from '../src/Login/CodePinScreen';
 
+import Accueil from '../src/HomeScreen/Accueil';
 import HomeScreen from '../src/home/HomeScreen';
 import OTPScreen from '../src/VerifiCodeOpt/verifieCodeOpt';
 import BottomTabNavigator from './../src/tabs/TabNavigator';
@@ -16,6 +17,8 @@ import DetailCommand from './../src/home/DeatailCommand';
 import AddCommandeScreen from './../src/home/AjoutCommand';
 import DemandeOtorisation from './../src/Demande/DemandeOtorisation';
 import ChangePasswordScreen from './../src/ForgetPassword/PasswordScreen';
+import ModifyCommandeScreen from'./../src/home/ModifierCommand';
+import StockHistorics from'./../src/Historiques/StockHistorics';
 
 const Stack = createNativeStackNavigator();
 
@@ -64,6 +67,9 @@ const Routes = () => {
         <Stack.Screen name="AddCommandeScreen" component={AddCommandeScreen} />
         <Stack.Screen name="DemandeOtorisation" component={DemandeOtorisation} />
         <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+        <Stack.Screen name="ModifyCommandeScreen" component={ModifyCommandeScreen} />
+        <Stack.Screen name="StockHistorics" component={StockHistorics} />
+        <Stack.Screen name="Accueil" component={Accueil} />
       </Stack.Navigator>
     </NavigationContainer>
   );

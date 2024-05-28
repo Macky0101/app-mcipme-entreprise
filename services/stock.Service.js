@@ -26,7 +26,7 @@ export const DetailCommand = async (id) => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/commandes/${id}`);
-    // //console.log('Liste des commandes:', response.data);
+    // console.log(' commandes detail:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -58,7 +58,7 @@ export const ListProduits = async () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/produits`);
-    //console('Liste des produits:', response.data);
+    // console('Liste des produits:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -73,7 +73,7 @@ export const ListFournisseurs = async () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     const response = await axiosInstance.get(`/liste-entreprise-importatrices-exportatrices`);
-    //console('Liste des fournisseurs:', response.data);
+    // console.log('Liste des fournisseurs:', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -119,13 +119,97 @@ export const ValiderCommande = async (code) => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     const response = await axiosInstance.post('/commandes/pme/validation', {code});
 
-    console.log('commande validée:', response.data);
+    // console.log('commande validée:', response.data);
     return response.data; // Retour des données ajoutées
   } catch (error) {
     console.error("Erreur lors de la validation de la commande:", error.message || error);
     if (error.response) {
+      // console.error("Détails de l'erreur:", error.response.data); // Informations supplémentaires
+    }
+    throw error; // Pour permettre au code appelant de gérer l'erreur
+  }
+};
+export const ModifierCommande = async (commandeData) => {
+  try {
+    const token = await AsyncStorage.getItem('@token');
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    // console.log("DATA",commandeData);
+    const response = await axiosInstance.post('/commandes/update', commandeData);
+    // console.log('Commande modifiée avec succès:', response.data);
+    return response.data; // Retour des données modifiées
+  } catch (error) {
+    console.error('Erreur lors de la modification de la commande:', error.message || error);
+    if (error.response) {
       console.error("Détails de l'erreur:", error.response.data); // Informations supplémentaires
     }
     throw error; // Pour permettre au code appelant de gérer l'erreur
+  }
+};
+
+
+// fetchStockHistorics 
+
+
+export const GetStockHistorics = async (annee = null) => {
+  try {
+    const token = await AsyncStorage.getItem('@token');
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    const codeMPME = await AsyncStorage.getItem('codeMPMEs');
+    if (!codeMPME) {
+      throw new Error('Code MPME non trouvé dans le stockage');
+    }
+
+    const params = {
+      code: codeMPME,
+      annee: annee || new Date().getFullYear()
+    };
+
+    const response = await axiosInstance.get(`/stocks/historics`, { params });
+    // console.log('Réponse de l\'API:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des historiques de stocks:', error.message || error);
+    if (error.response) {
+      console.error("Détails de l'erreur:", error.response.data);
+    }
+    throw error;
+  }
+};
+// Obtenir la liste des catégories
+export const getCategories = async () => {
+  try {
+    const token = await AsyncStorage.getItem('@token');
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const response = await axiosInstance.get('/type-produits');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Obtenir la liste des sous-catégories
+export const getSubCategories = async (categoryId) => {
+  try {
+    const token = await AsyncStorage.getItem('@token');
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const response = await axiosInstance.get(`/sous-produits?CategorieProduitsId=${categoryId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+// Obtenir la liste des produits
+export const getProducts = async (subCategoryId) => {
+  try {
+    const token = await AsyncStorage.getItem('@token');
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const response = await axiosInstance.get(`/produits?CategorieProduit=${subCategoryId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
   }
 };

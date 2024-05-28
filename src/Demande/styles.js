@@ -135,6 +135,42 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay to highlight the modal
+  },
+  modalContainer: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  modalItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  itemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  buttonContainer: {
+    marginTop: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  selectButton: {
+    padding: 10,
+    backgroundColor: '#f5f5f5', // Couleur claire pour le bouton
+    borderRadius: 5, // Bords arrondis
+  },
 });
 
 export default styles;

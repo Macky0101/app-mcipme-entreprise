@@ -1,17 +1,13 @@
-import React from 'react';
-import { View, Text, SafeAreaView, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import { MaterialIcons } from 'react-native-vector-icons';
+import React,{useState} from 'react';
+import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ValiderCommande } from './../../services/stock.Service';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const DetailCommand = ({ navigation }) => {
-  const route = useRoute();
-  const { commande } = route.params;
-
-  const getStatusBackgroundColor = (status) => (status === '1' ? 'lightgreen' : 'lightcoral');
-
+const CommandDetailsScreen = ({ route,navigation }) => {
+  const { commandDetails } = route.params;
   const handleStatusClick = async () => {
-    if (commande.CommandeValider === '1') {
+    if (commandDetails.data.CommandeValider === '1') {
       Alert.alert("Information", "Cette commande est déjà validée.");
       return;
     }
@@ -28,11 +24,13 @@ const DetailCommand = ({ navigation }) => {
           text: "Valider",
           onPress: async () => {
             try {
-              const response = await ValiderCommande(commande.CodeCommande);
-              // console.log('macky',response);
+             
+              const response = await ValiderCommande(commandDetails.data.CodeCommande);
+              console.log('reponse ',response);
               Alert.alert("Succès", "La commande a été validée.");
-              // navigation.goBack(); // Retour à l'écran précédent ou rafraîchissement
-              navigation.navigate('HomeScreen', { refresh: true });
+              // navigation.goBack(); 
+              navigation.navigate('BottomTabNavigator', { screen: 'HomeScreen', params: { refresh: true } });
+              // navigation.navigate('BottomTabNavigator', { refresh: true });
 
             } catch (error) {
               Alert.alert("Erreur", "La validation de la commande a échoué.");
@@ -40,66 +38,70 @@ const DetailCommand = ({ navigation }) => {
           },
         },
       ],
-      { cancelable: true } // Permet de fermer l'alerte en cliquant en dehors
+      { cancelable: true } 
     );
-  };
-
-  const renderProduit = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.cardRow}>
-        <MaterialIcons name="calendar-today" size={20} color="#666" />
-        <Text>Date d'Importation: {item.DateImportation || 'Non disponible'}</Text>
-      </View>
-      <View style={styles.cardRow}>
-        <MaterialIcons name="shopping-cart" size={20} color="#666" />
-        <Text>Quantité Commandée: {item.QuantiteCommande || 'Non disponible'}</Text>
-      </View>
-      <View style={styles.cardRow}>
-        <MaterialIcons name="inventory" size={20} color="#666" />
-        <Text>Quantité Importée: {item.QuantiteImporter || 'Non disponible'}</Text>
-      </View>
-      <View style={styles.cardRow}>
-        <MaterialIcons name="warehouse" size={20} color="#666" />
-        <Text>Entrée en Stock: {item.DateEntreeStock || 'Non disponible'}</Text>
-      </View>
-      <View style={styles.cardRow}>
-        <MaterialIcons name="public" size={20} color="#666" />
-        <Text>Pays de Provenance: {item.PaysDeProvenance || 'Non disponible'}</Text>
-      </View>
-    </View>
-  );
-
+  };    
   return (
-    <SafeAreaView style={styles.safeAreaView}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Détails de la Commande</Text>
-      </View>
-
-      <View style={styles.commandDetails}>
-        <View>
-          <Text style={{ paddingBottom: 5 }}>Code: {commande.CodeCommande}</Text>
-          <Text>Date: {commande.DateCommande}</Text>
-        </View>
-        <TouchableOpacity onPress={handleStatusClick}>
-          <Text
-            style={{
-              backgroundColor: getStatusBackgroundColor(commande.CommandeValider),
-              padding: 5,
-              borderRadius: 5,
-            }}
-          >
-            Statut: {commande.CommandeValider === '1' ? 'Validée' : 'En attente'}
-          </Text>
+     <SafeAreaView style={styles.safeAreaView}>
+    <View style={styles.container}>
+      <View style={styles.sectionHeading}>
+          <View style={styles.sectionHeadingMain}>
+            <Text style={styles.sectionHeadingText} numberOfLines={1}>
+            Détails de la commande
+            </Text>
+          </View>
+          <View style={styles.buttonContainer}>
+          <TouchableOpacity
+          style={[
+            styles.statusButton,
+            { backgroundColor: commandDetails.data.CommandeValider === "1" ? '#90EE90' : '#F08080' }
+          ]}
+          onPress={handleStatusClick}
+        >
+          <Text style={styles.statusButtonText}>{commandDetails.data.CommandeValider === "1" ? 'Validé' : 'En attente'}</Text>
         </TouchableOpacity>
+    </View>
+        </View>
+      
+
+        <View style={styles.detailsContainer}>
+        <Text style={styles.detail}>Code de la commande: {commandDetails.data.CodeCommande}</Text>
+        <Text style={styles.detail}>Date de la commande: {commandDetails.data.DateCommande}</Text>
+        <Text style={styles.detail}>Pays de Provenance: {commandDetails.data.PaysDeProvenance || 'Locale'}</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Produits</Text>
-
+      <Text style={styles.title}>Produits commandés:</Text>
       <FlatList
-        data={commande.produits}
+        data={commandDetails.data.produits}
+        renderItem={({ item }) => (
+          <View style={styles.productContainer}>
+            <Image
+              source={{ uri: item.produit.ImageProduit }}
+              style={styles.productImage}
+            />
+            <View style={styles.productDetails}>
+              <Text style={styles.productName}>{item.produit.NomProduit}</Text>
+              <Text style={styles.productDescription}>{item.produit.Description}</Text>
+              <Text>Quantité commandée: {item.QuantiteCommande}</Text>
+              <Text>Quantité importée: {item.QuantiteImporter}</Text>
+            </View>
+          </View>
+        )}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={renderProduit}
       />
+ 
+ {commandDetails.data.CommandeValider !== "1" && (
+    <TouchableOpacity>
+<View style={{  flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 20 }}>
+<TouchableOpacity onPress={() => navigation.navigate('ModifyCommandeScreen', { commandeId: commandDetails.data.id, produits: commandDetails.data.produits })}>
+  <View style={styles.editButton}>
+    <MaterialCommunityIcons name="pencil" size={20} color="white" />
+  </View>
+</TouchableOpacity>
+</View>
+</TouchableOpacity>
+ )}
+    </View>
     </SafeAreaView>
   );
 };
@@ -107,41 +109,112 @@ const DetailCommand = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
   },
-  header: {
+  container: {
     padding: 10,
-    backgroundColor: '#f5f5f5',
   },
-  headerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  commandDetails: {
-    padding: 10,
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  sectionTitle: {
-    padding: 10,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  card: {
-    backgroundColor: '#f9f9f9',
-    padding: 10,
-    borderRadius: 8,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  cardRow: {
+  sectionHeading: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 30,
+    // paddingHorizontal: 24,
+    marginBottom: 10
+  },
+  sectionHeadingMain: {
+    flexShrink: 1,
+  },
+  sectionHeadingText: {
+    fontSize: 20,
+    color: '#1c1c1c',
+    fontWeight: 'bold',
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#ffffff',
+  },
+  statusButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 5,
+    elevation: 8,
+  },
+  statusButtonText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  detailsContainer: {
+    marginBottom: 20,
+  },
+  detail: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  productContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  productImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 15,
+  },
+  productDetails: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  productDescription: {
+    marginBottom: 5,
+  },
+
+
+
+
+  editButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#009900',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  editButtonText: {
+    color: 'white',
+    marginLeft: 5,
+  },
+  modalContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
 });
 
-export default DetailCommand;
+export default CommandDetailsScreen;

@@ -46,7 +46,7 @@ const getIntituleTypes = (typesEntreprise) => {
       // Désactiver le chargement
       setLoading(false);
       // Naviguer vers l'écran OTPScreens après la connexion réussie et passer l'e-mail de l'utilisateur
-      navigation.navigate('OTPScreens', { email: email });
+      navigation.navigate('BottomTabNavigator',{screen: 'Accueil'}, { email: email });
     } catch (error) {
       console.error('Erreur lors de la connexion:', error);
       // Désactiver le chargement
@@ -96,6 +96,7 @@ const getIntituleTypes = (typesEntreprise) => {
                 onChangeText={setPassword}
                 value={password}
                 placeholder="Mot de passe"
+                keyboardType="numeric"
                 secureTextEntry={true}
                 autoCapitalize="none"
                 autoCorrect={false}

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity, TextInput, Image, Platform, ActivityIndicator ,ScrollView} from 'react-native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import { reconnectWithPin } from './../../services/apiService'; // Importer la fonction de connexion avec le code PIN
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PIN_LENGTH = 8;
 
@@ -12,7 +11,9 @@ const PinInput = ({ onPinComplete }) => {
 
   const handleChange = (text) => {
     if (text.length <= PIN_LENGTH) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); // Vibration légère lors de la saisie
+      if (Platform.OS === 'ios') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); // Vibration légère lors de la saisie
+      }
       setPin(text);
       if (text.length === PIN_LENGTH) {
         onPinComplete(text); // Appeler la fonction lorsque le code PIN est complet
@@ -34,49 +35,84 @@ const PinInput = ({ onPinComplete }) => {
 
   return (
     <View style={styles.pinInputContainer}>
-      <TextInput
-        value={pin}
-        onChangeText={handleChange}
-        keyboardType="numeric"
-        secureTextEntry
-        style={styles.hiddenInput}
-        autoFocus
-      />
-      <TouchableOpacity>
-        <View style={styles.circlesContainer}>
-          {renderPinCircles()}
-        </View>
-      </TouchableOpacity>
+      {Platform.OS === 'ios' ? (
+        <>
+          <TextInput
+            value={pin}
+            onChangeText={handleChange}
+            keyboardType="numeric"
+            secureTextEntry
+            style={styles.hiddenInput}
+            autoFocus
+          />
+          <TouchableOpacity>
+            <View style={styles.circlesContainer}>
+              {renderPinCircles()}
+            </View>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <TextInput
+          value={pin}
+          onChangeText={handleChange}
+          keyboardType="numeric"
+          secureTextEntry
+          maxLength={PIN_LENGTH}
+          style={styles.androidTextInput}
+          autoFocus
+        />
+      )}
     </View>
   );
 };
 
 const PinScreen = () => {
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handlePinComplete = async (pin) => {
+    setIsLoading(true); 
     try {
-      // Utiliser la fonction pour se connecter avec le code PIN
       const response = await reconnectWithPin(pin);
 
       if (response) {
-        navigation.navigate('BottomTabNavigator'); // Rediriger vers HomeScreen après une connexion réussie
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'BottomTabNavigator' }],
+          })
+        );
       } else {
-        Alert.alert('Connexion échouée', 'Veuillez réessayer.'); // Gestion de l'échec de la connexion
+        Alert.alert('Connexion échouée', 'Veuillez réessayer.');
+        setPin('');
       }
     } catch (error) {
-      console.error('Erreur lors de la connexion avec le code PIN :', error);
-      Alert.alert('Erreur', 'La connexion a échoué. Veuillez réessayer.'); // Message d'erreur général
+      Alert.alert('Erreur', 'La connexion a échoué. Veuillez réessayer.');
+      setPin('');
+    } finally {
+      setIsLoading(false); 
     }
   };
 
   return (
-    <View style={styles.screen}>
+   <ScrollView  style={{paddingTop:'30%'}}>
+     <View style={styles.screen}>
+      <Image
+        style={styles.loginTopLogo}
+        source={require('./../../assets/password-code.png')}
+        resizeMode="contain"
+      />
       <Text style={styles.title}>Entrez votre code PIN :</Text>
-      <PinInput onPinComplete={handlePinComplete} /> 
+      <PinInput onPinComplete={handlePinComplete} />
+<View style={{marginTop:40}}>
+{isLoading && <ActivityIndicator size="large" color="#009900" />} 
+
+</View>
     </View>
+   </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   screen: {
@@ -86,7 +122,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    marginBottom: 20,
+    marginBottom: 30,
   },
   pinInputContainer: {
     flexDirection: 'row',
@@ -117,6 +153,20 @@ const styles = StyleSheet.create({
     height: 0,
     width: 0,
     opacity: 0,
+  },
+  androidTextInput: {
+    backgroundColor: '#dddddd', // Couleur d'arrière-plan
+    borderRadius: 25, // Rond
+    width: 250, // Largeur des cercles
+    height: 50, // Hauteur des cercles
+    textAlign: 'center', // Centrer le texte
+    fontSize: 14, // Taille de la police
+    // marginBottom: 15, // Espacement entre les cercles
+  },
+  loginTopLogo: {
+    width: 250,
+    height: 250,
+    // marginBottom: 20,
   },
 });
 

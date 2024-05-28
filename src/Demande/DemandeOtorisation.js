@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, TextInput, Alert,ScrollView } from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, Modal, FlatList, Button, Alert, ActivityIndicator} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import styles from './styles';
 import { ListTypeDemande, demande } from './../../services/apiService'; // Assurez-vous d'importer les fonctions correctes
-import { ActivityIndicator } from 'react-native';
-
+import { useNavigation } from '@react-navigation/native';
+import Toast from '../compoment/Toast';
 
 const DemandeOtorisation = () => {
+  const navigation = useNavigation();
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
   const [adresseEmail, setAdresseEmail] = useState('');
@@ -20,16 +21,30 @@ const DemandeOtorisation = () => {
     LettreManuscrite: null,
     documentRCCM: null,
   });
+  const [typesDemande, setTypesDemande] = useState([]);
+  const [selectedTypeDemande, setSelectedTypeDemande] = useState(null);
+  const [isTypeDemandeModalVisible, setIsTypeDemandeModalVisible] = useState(false);
   const [choix, setChoix] = useState('OUI');
-  const [typesDemande, setTypesDemande] = useState([]); // Pour stocker les types de demande
-  const [typeDemande, setTypeDemande] = useState(''); // Pour choisir un type
+  const [isChoixModalVisible, setIsChoixModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
 
+  const showToast = (message) => {
+    setErrorMessage(message);
+    setToastVisible(true);
+  };
+
+  const hideToast = () => {
+    setToastVisible(false);
+    setErrorMessage('');
+  };
   useEffect(() => {
     const fetchTypesDemande = async () => {
       try {
         const response = await ListTypeDemande();
         if (response.status === 'success' && response.data) {
+          // console.log('Types de demande chargés:', response.data); 
           setTypesDemande(response.data);
         } else {
           //console.error('Structure inattendue de la réponse:', response);
@@ -72,7 +87,7 @@ const DemandeOtorisation = () => {
     setIsLoading(true); 
     try {
      
-      ////console.log(selectedFiles.fileCarteBiometric); 
+      // console.log(selectedFiles.fileCarteBiometric); 
       const formData = new FormData();
 
       // Ajouter les champs textuels
@@ -81,8 +96,14 @@ const DemandeOtorisation = () => {
       formData.append("Email", adresseEmail);
       formData.append("Telephone", numeroPhone);
       formData.append("ProduitAlimentaire", choix);
-      formData.append("TypeDemandeId", typeDemande);
-
+      if (selectedTypeDemande) {
+        formData.append("TypeDemandeId", selectedTypeDemande.id); 
+    } else {
+        console.error("Erreur: TypeDemandeId est manquant.");
+        setIsLoading(false);
+        Alert.alert('Erreur', 'Vous devez sélectionner un type de demande.');
+        return; // Arrêter si TypeDemandeId est manquant
+    }
       // Ajouter les fichiers
       if (selectedFiles.LettreManuscrite) {
         const file = selectedFiles.LettreManuscrite;
@@ -111,23 +132,51 @@ const DemandeOtorisation = () => {
       } else {
         formData.append("FileCarteBiometric", null);
       }
-
       // Envoyer la requête
       const response = await demande(formData);
-      ////console.log('response', response);
+      console.log('response', response);
       setIsLoading(false);
       if (response.status === 'success') {
         Alert.alert('Demande envoyée', 'Votre demande a été envoyée avec succès!');
+        navigation.goBack(); 
       } else {
         setIsLoading(false);
+        hideToast();
         //console.error('Erreur lors de l\'envoi:', response.message);
         Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'envoi de votre demande.');
       }
     }  catch (error) {
       console.error("Erreur lors de l'envoi de la demande:", error);
+      showToast('Erreur de chargement. Vérifiez votre connexion internet.');
       setIsLoading(false); // Arrêter le chargement en cas d'erreur
       Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'envoi de votre demande.');
+
     }
+  };
+  const openTypeDemandeModal = () => {
+    setIsTypeDemandeModalVisible(true);
+  };
+
+  const closeTypeDemandeModal = () => {
+    setIsTypeDemandeModalVisible(false);
+  };
+
+  const handleTypeDemandeSelect = (type) => {
+    setSelectedTypeDemande(type);
+    closeTypeDemandeModal();
+  };
+
+  const openChoixModal = () => {
+    setIsChoixModalVisible(true);
+  };
+
+  const closeChoixModal = () => {
+    setIsChoixModalVisible(false);
+  };
+
+  const handleChoixSelect = (value) => {
+    setChoix(value);
+    closeChoixModal();
   };
 
   return (
@@ -185,31 +234,72 @@ showsVerticalScrollIndicator={false}
           placeholder="Entrez le numéro de votre carte biométrique"
         />
 
-        <Text style={styles.label}>Type de demande</Text>
-        <Picker
-          selectedValue={typeDemande}
-          onValueChange={(value) => setTypeDemande(value)}
-          style={styles.picker}
-        >
-          {typesDemande.map((type) => {
-            ////console.log('Type de demande:', type); // Ajouter un log pour vérifier les données
-            return (
-              <Picker.Item key={type.id} label={type.LibelleTypeDemandes} value={type.id} />
-            );
-          })}
-        </Picker>
+       {/* Sélection du type de demande */}
+       <TouchableOpacity
+            style={styles.selectButton}
+            onPress={openTypeDemandeModal}
+          >
+            <Text>{selectedTypeDemande ? selectedTypeDemande.LibelleTypeDemandes : "Sélectionnez un type de demande"}</Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity
+            style={styles.selectButton}
+            onPress={openChoixModal}
+          >
+            <Text>{choix}</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.label}>Impor/export de produits ?</Text>
-        <Picker
-          selectedValue={choix}
-          onValueChange={(itemValue) => setChoix(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="NON" value="NON" />
-          <Picker.Item label="OUI" value="OUI" />
-        </Picker>
+          {/* Modal pour le type de demande */}
+          <Modal
+      transparent
+      visible={isTypeDemandeModalVisible}
+      animationType="slide"
+      onRequestClose={closeTypeDemandeModal}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          <FlatList
+            data={typesDemande}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => handleTypeDemandeSelect(item)}
+              >
+                <Text style={styles.itemText}>{item.LibelleTypeDemandes}</Text>
+              </TouchableOpacity>
+            )}
+          />
+          <View style={styles.buttonContainer}>
+            <Button title="Fermer" onPress={closeTypeDemandeModal} color="#ff5c5c" />
+          </View>
+        </View>
+      </View>
+    </Modal>
 
+          {/* Modal pour le choix import/export */}
+          <Modal
+            transparent
+            visible={isChoixModalVisible}
+            animationType="slide"
+            onRequestClose={closeChoixModal}
+          >
+            <View style={styles.modalContainer}>
+              <FlatList
+                data={[{ label: 'NON', value: 'NON' }, { label: 'OUI', value: 'OUI' }]}
+                keyExtractor={(item) => item.value}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.modalItem}
+                    onPress={() => handleChoixSelect(item.value)}
+                  >
+                    <Text>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+              <Button title="Fermer" onPress={closeChoixModal} />
+            </View>
+          </Modal>
         {/* <TouchableOpacity onPress={() => selectDocument('fileCarteBiometric')} style={styles.filePickerButton}>
           <Text>
             Copie de la carte biométrique

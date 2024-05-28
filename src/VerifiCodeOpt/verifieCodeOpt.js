@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { VerifyOtp } from './../../services/apiService'; // Assurez-vous d'importer correctement la fonction
 import { useRoute, useNavigation } from '@react-navigation/native';
+import LoadingOverlay from '../compoment/LoadingOverlay';
 
 const OTPScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [otp, setOtp] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const verifyAOTP = async () => {
+    setIsLoading(true);
     try {
       const email = route.params.email;
-      const response = await VerifyOtp(email, email, otp);
+      const response = await VerifyOtp(email, otp);
 
       console.log('Réponse de vérification OTP:', response);
 
@@ -28,6 +31,8 @@ const OTPScreen = () => {
     } catch (error) {
       console.error('Erreur lors de la vérification OTP:', error);
       Alert.alert('Erreur', 'Une erreur s\'est produite. Veuillez réessayer.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,9 +50,10 @@ const OTPScreen = () => {
         maxLength={6} // Limite à 6 caractères pour un OTP standard
       />
       
-      <TouchableOpacity style={styles.button} onPress={verifyAOTP}>
+      <TouchableOpacity style={styles.button} onPress={verifyAOTP} disabled={isLoading}>
         <Text style={styles.buttonText}>Vérifier</Text>
       </TouchableOpacity>
+      <LoadingOverlay visible={isLoading} />
     </View>
   );
 };

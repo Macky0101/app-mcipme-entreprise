@@ -352,3 +352,226 @@ const AddCommandeScreen = ({ navigation }) => {
 //     marginBottom: 10,
 //   },
 // };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from 'react';
+// import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
+// import { getCategories, getSubCategories, getProducts } from './../../services/stock.Service';
+
+// const selectProduct = () => {
+//   const [categories, setCategories] = useState([]);
+//   const [subCategories, setSubCategories] = useState([]);
+//   const [products, setProducts] = useState([]);
+//   const [selectedCategory, setSelectedCategory] = useState(null);
+//   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+
+//   useEffect(() => {
+//     const fetchCategories = async () => {
+//       try {
+//         const response = await getCategories();
+//         setCategories(response.data);
+//       } catch (error) {
+//         console.error('Erreur lors de la récupération des catégories:', error);
+//       }
+//     };
+//     fetchCategories();
+//   }, []);
+
+//   const handleCategorySelect = async (category) => {
+//     setSelectedCategory(category);
+
+//     try {
+//       const response = await getSubCategories(category.id);
+//       setSubCategories(response.data);
+//       setProducts([]);
+//     } catch (error) {
+//       console.error('Erreur lors de la récupération des sous-catégories:', error);
+//     }
+//   };
+
+//   const handleSubCategorySelect = async (subCategory) => {
+//     setSelectedSubCategory(subCategory);
+//     try {
+//       const response = await getProducts(subCategory.id);
+//       setProducts(response.data);
+//     } catch (error) {
+//       console.error('Erreur lors de la récupération des produits:', error);
+//     }
+//   };
+
+//   const renderCategory = ({ item }) => (
+//     <TouchableOpacity onPress={() => handleCategorySelect(item)}>
+//       <Text style={styles.item}>{item.NomCategorieProduit}</Text>
+//     </TouchableOpacity>
+//   );
+
+//   const renderSubCategory = ({ item }) => (
+//     <TouchableOpacity onPress={() => handleSubCategorySelect(item)}>
+//       <Text style={styles.item}>{item.NomCategorieProduit}</Text>
+//     </TouchableOpacity>
+//   );
+
+//   const renderProduct = ({ item }) => (
+//     <TouchableOpacity style={styles.productItem}>
+//       <Image source={{ uri: item.ImageProduit }} style={styles.productImage} />
+//       <View style={styles.productDetails}>
+//         <Text style={styles.productName}>{item.NomProduit}</Text>
+//         <Text style={styles.productDescription}>{item.Description}</Text>
+//         <Text style={styles.productInfo}>Unité: {item.unite.Nom} ({item.unite.Symbol})</Text>
+//         <Text style={styles.productInfo}>Forme: {item.forme.Nom}</Text>
+//       </View>
+//     </TouchableOpacity>
+//   );
+
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.title}>Sélectionnez une catégorie de produit</Text>
+//       <FlatList
+//         data={categories}
+//         renderItem={renderCategory}
+//         keyExtractor={(item) => item.id.toString()}
+//         style={styles.list}
+//       />
+//       {subCategories && subCategories.length > 0 && (
+//         <>
+//           <Text style={styles.title}>Sélectionnez une sous-catégorie</Text>
+//           <FlatList
+//             data={subCategories}
+//             renderItem={renderSubCategory}
+//             keyExtractor={(item) => item.id.toString()}
+//             style={styles.list}
+//           />
+//         </>
+//       )}
+//       {products && products.length > 0 && (
+//         <>
+//           <Text style={styles.title}>Produits</Text>
+//           <FlatList
+//             data={products}
+//             renderItem={renderProduct}
+//             keyExtractor={(item) => item.id.toString()}
+//             style={styles.list}
+//           />
+//         </>
+//       )}
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 16,
+//     backgroundColor: '#fff',
+//   },
+//   title: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     marginBottom: 8,
+//   },
+//   list: {
+//     marginBottom: 16,
+//   },
+//   item: {
+//     padding: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#ccc',
+//   },
+//   productItem: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     paddingVertical: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#ccc',
+//   },
+//   productImage: {
+//     width: 80,
+//     height: 80,
+//     resizeMode: 'cover',
+//     marginRight: 12,
+//   },
+//   productDetails: {
+//     flex: 1,
+//   },
+//   productName: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//   },
+//   productDescription: {
+//     fontSize: 14,
+//     color: '#555',
+//     marginBottom: 8,
+//   },
+//   productInfo: {
+//     fontSize: 14,
+//     color: '#777',
+//   },
+// });
+
+// export default selectProduct;
+
+
+
+
+
+
+
+
+<FlatList
+data={produitList}
+keyExtractor={(item) => item.id.toString()}
+renderItem={({ item }) => (
+  <TouchableOpacity style={styles.modalItem} onPress={() => handleProduitSelect(item)}>
+    <Text>{item.NomProduit}</Text>
+  </TouchableOpacity>
+)}
+/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

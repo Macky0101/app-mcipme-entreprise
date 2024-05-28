@@ -1,12 +1,15 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Image, Button, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
 import { logout } from './../../services/apiService';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const ProfileScreen = ({ navigation }) => {
+  const [isLoading, setIsLoading] = useState(false); // Ajout de l'état isLoading
+
   const handleLogout = async () => {
+    setIsLoading(true); // Définir isLoading à true au début de la déconnexion
     // Afficher une alerte de confirmation
     Alert.alert(
       'Déconnexion',
@@ -15,6 +18,7 @@ const ProfileScreen = ({ navigation }) => {
         {
           text: 'Annuler',
           style: 'cancel',
+          onPress: () => setIsLoading(false), // Réinitialiser isLoading si l'utilisateur annule
         },
         {
           text: 'Déconnexion',
@@ -22,9 +26,12 @@ const ProfileScreen = ({ navigation }) => {
             try {
               await logout(); // Appeler la fonction de déconnexion
               // Rediriger l'utilisateur vers l'écran de connexion par exemple
-              navigation.navigate('PinScreen'); 
+              navigation.navigate('PinScreen');
+              // navigation.navigate('Login');
             } catch (error) {
               console.error('Error logging out:', error);
+            } finally {
+              setIsLoading(false); // Réinitialiser isLoading une fois la déconnexion terminée
             }
           },
         },
@@ -32,6 +39,7 @@ const ProfileScreen = ({ navigation }) => {
       { cancelable: false }
     );
   };
+
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
@@ -59,7 +67,7 @@ const ProfileScreen = ({ navigation }) => {
          style={styles.nav}
          >
            <MaterialIcons name="description" size={24} color="black" style={{paddingTop:5, marginRight:5}} />
-          <Text style={styles.titreProfilDetail}>données génerales</Text>
+          <Text style={styles.titreProfilDetail}>Données génerales</Text>
          </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity
@@ -85,7 +93,7 @@ const ProfileScreen = ({ navigation }) => {
           <MaterialIcons name="person" size={24} color="black" style={{paddingTop:5, marginRight:5}} />
           <Text style={styles.titreProfilDetail}>Dirigeant/proprietaire</Text>
          </TouchableOpacity>
-         <View style={styles.separator} />
+         <View style={styles.separator}/>
          <TouchableOpacity
          onPress={() => navigation.navigate('ChangePasswordScreen')}
          style={styles.nav}
@@ -93,12 +101,14 @@ const ProfileScreen = ({ navigation }) => {
           <MaterialIcons name="build" size={24} color="black" style={{paddingTop:5, marginRight:5}} />
           <Text style={styles.titreProfilDetail}>Change mot de passe</Text>
          </TouchableOpacity>
-         <View style={styles.separator} />
+         <View style={styles.separator}/>
 
-          <TouchableOpacity onPress={handleLogout} >
-            <Text style={styles.logoutButton} >
-           {/* <MaterialIcons name="logout" size={24} color="black" /> */}
-              Déconnexion</Text>
+         <TouchableOpacity onPress={handleLogout}>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#009900" />
+            ) : (
+              <Text style={styles.logoutButton}>Déconnexion</Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>

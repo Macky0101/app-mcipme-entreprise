@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   sectionHeading: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     minHeight: 30,
     paddingHorizontal: 24,
     marginBottom: 10
@@ -145,6 +145,47 @@ const styles = StyleSheet.create({
     right: 10,
   },
   //modal fin
+  submitButton: {
+    backgroundColor: '#009900', // Couleur de fond
+    padding: 15, // Espacement intérieur du bouton
+    borderRadius: 10, // Bords arrondis
+    alignItems: 'center', // Centrer le texte horizontalement
+  },
+  submitButtonText: {
+    color: '#ffffff', // Texte en blanc
+    fontWeight: 'bold', // Texte en gras
+  },
+  buttonContainer: {
+    alignItems: 'center', // Centrer horizontalement
+    justifyContent: 'center', // Centrer verticalement
+  },
+  addButton: {
+    backgroundColor: '#009900', // Fond bleu
+    borderRadius: 8, // Coins légèrement arrondis
+    paddingVertical: 10, // Espace vertical à l'intérieur du bouton
+    paddingHorizontal: 20, // Espace horizontal à l'intérieur du bouton
+    
+  },
+  addButtonText: {
+    color: '#ffffff', // Texte en blanc
+    fontSize: 12, // Taille de la police
+    fontWeight: 'bold', // Texte en gras
+  },
+  loadingImage: {
+    width: 300, // Largeur de l'image
+    height: 300, // Hauteur de l'image
+    alignSelf: 'center', // Alignement au centre horizontal
+    marginTop: 20, // Marge supérieure pour séparer de contenu au-dessus
+  },
+  iconContainer: {
+    backgroundColor: 'blue',
+    borderRadius: 50, // Pour obtenir une forme de cercle
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
 });
 
 export default styles;

@@ -4,13 +4,14 @@
     "slug": "app-mcipme-entreprise",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icons.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icons.png",
+      // "image": "./assets/icons.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+      "backgroundColor": "#ffffff" // Changer la couleur d'arrière-plan
+    }
+    ,
     "assetBundlePatterns": [
       "**/*"
     ],

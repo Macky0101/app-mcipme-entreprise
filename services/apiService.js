@@ -22,12 +22,14 @@ export const login = async (email, password) => {
     // Stocker le code MPME avec une clé unique
     const codeMPME = user.Entreprises; // Assurez-vous que ce chemin est correct
     await AsyncStorage.setItem('codeMPMEs', codeMPME);
-    console.log('Code MPME stocké dans AsyncStorage:', codeMPME);
+    // console.log('Code MPME stocké dans AsyncStorage:', codeMPME);
+    const Nom = user.Nom;
+    await AsyncStorage.setItem('@userNom', Nom);
 
     await AsyncStorage.setItem('@token', access_token);
     await AsyncStorage.setItem('@user', JSON.stringify(user));
     await AsyncStorage.setItem('@userEmail', email);
-    console.log('email stocké dans AsyncStorage:',email);
+    // console.log('email stocké dans AsyncStorage:',email);
     return response.data;
   } catch (error) {
     throw error;
@@ -92,9 +94,9 @@ export const logout = async () => {
     const token = await AsyncStorage.getItem('@token');
     const email = await AsyncStorage.getItem('@userEmail');
 
-    console.log('Déconnexion en cours :');
-    console.log('Token avant déconnexion:', token);
-    console.log('Email avant déconnexion:', email);
+    // console.log('Déconnexion en cours :');
+    // console.log('Token avant déconnexion:', token);
+    // console.log('Email avant déconnexion:', email);
 
     if (token) {
       // Ajouter le token à l'en-tête Authorization
@@ -104,8 +106,8 @@ export const logout = async () => {
       await AsyncStorage.removeItem('@token');
       // await AsyncStorage.removeItem('@user');
 
-      console.log('Token supprimé.'); // Confirmer la suppression du token
-      console.log('Email toujours stocké:', email); // Confirmer que l'email est toujours là
+      // console.log('Token supprimé.'); // Confirmer la suppression du token
+      // console.log('Email toujours stocké:', email); // Confirmer que l'email est toujours là
 
 
       
@@ -136,7 +138,7 @@ export const getUserData = async (codeMPME) => {
     const response = await axiosInstance.get(`/mcipme/${codeMPME}`);
 
     
-    console.log('User data Macky:', response.data); // Afficher les données de l'utilisateur dans la console
+    // console.log('User data Macky:', response.data); // Afficher les données de l'utilisateur dans la console
 
     return response.data;
   } catch (error) {
@@ -150,7 +152,7 @@ export const ListTypeDemande = async () => {
     const response = await axiosInstance.get('/type-demandes'); 
     if (response.status === 200 && response.data) {
       // Assurez-vous que data existe et contient ce que vous attendez
-      console.log('Liste des types de demande:', response.data); 
+      // console.log('Liste des types de demande:', response.data); 
       return response.data; // Renvoie la partie "data"
     } else {
       throw new Error('La réponse de l\'API n\'est pas comme attendu.');
