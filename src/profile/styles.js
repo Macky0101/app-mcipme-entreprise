@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    minHeight: 30,
+    minHeight: 70,
     paddingHorizontal: 24,
     marginBottom:10
   },
@@ -66,9 +66,15 @@ const styles = StyleSheet.create({
     fontSize:20,
     textAlign:'center',
     marginTop:50,
-    backgroundColor:'#dddddd',
+    backgroundColor:'#009900',
     padding:10,
     marginRight:20,
+    borderRadius:8
+  },
+  deco:{
+    textAlign:'center',
+    color:'#ffffff',
+    fontSize:16
   },
   profileAction:{
     paddingLeft: 15,

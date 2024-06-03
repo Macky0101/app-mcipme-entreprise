@@ -12,6 +12,10 @@ import {
   Platform,
   Image,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ListProduits, ListFournisseurs, AjoutCommand, getCategories, getSubCategories, getProducts } from './../../services/stock.Service';
@@ -21,6 +25,7 @@ import styles from './stylesAjoutcommand';
 import SearchableDropdown from 'react-native-searchable-dropdown';
 import axios from 'axios';
 import CountryFlag from 'react-native-country-flag';
+import Toast from '../compoment/Toast';
 
 // Fonction pour récupérer les types d'entreprise de AsyncStorage
 const fetchIntituleTypes = async () => {
@@ -36,6 +41,28 @@ const AddCommandeScreen = ({ route, navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const showToast = (message) => {
+    setErrorMessage(message);
+    setToastVisible(true);
+  };
+
+  const hideToast = () => {
+    setToastVisible(false);
+    setErrorMessage('');
+  };
+  const [isProductListModalVisible, setProductListModalVisible] = useState(false);
+
+const openProductListModal = () => {
+  setProductListModalVisible(true);
+};
+
+const closeProductListModal = () => {
+  setProductListModalVisible(false);
+};
 
 
   useEffect(() => {
@@ -140,7 +167,7 @@ const AddCommandeScreen = ({ route, navigation }) => {
 
   const handleCountrySelect = (item) => {
     setSelectedCountry(item.name); // Stocke le nom du pays sélectionné
-    setPaysProvenance(item.id); // Stocke le code alpha-2 du pays sélectionné
+    setPaysProvenance(item.name); // Stocke le code alpha-2 du pays sélectionné
   };
   
 
@@ -163,6 +190,7 @@ const AddCommandeScreen = ({ route, navigation }) => {
 
   const fetchCountries = async () => {
     try {
+      hideToast();
       const response = await axios.get('https://restcountries.com/v3.1/all?lang=fr');
       const countriesData = response.data;
       const sortedCountries = countriesData.sort((a, b) => {
@@ -170,6 +198,7 @@ const AddCommandeScreen = ({ route, navigation }) => {
       });
       setCountries(sortedCountries);
     } catch (error) {
+      showToast('Erreur de chargement des pays. Vérifiez votre connexion internet.');
       console.error('Erreur lors de la récupération des pays:', error);
     }
   };
@@ -263,7 +292,7 @@ const AddCommandeScreen = ({ route, navigation }) => {
       Alert.alert('Erreur', 'Veuillez sélectionner un produit.');
       return;
     }
-    if (!paysProvenance) {
+    if (isImporter && !paysProvenance) {
       Alert.alert('Erreur', 'Veuillez sélectionner un pays de Provenance.');
       return;
     }
@@ -296,6 +325,7 @@ const AddCommandeScreen = ({ route, navigation }) => {
   
 
   const handleSubmitCommande = async () => {
+    setIsSubmitting(true);
     if (!commandeDate) {
       Alert.alert('Erreur', 'Veuillez entrer une date de commande.');
       return;
@@ -320,6 +350,8 @@ const AddCommandeScreen = ({ route, navigation }) => {
     } catch (error) {
       console.error('Erreur lors de l\'ajout de la commande:', error);
       Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'ajout de la commande.');
+    }finally {
+      setIsSubmitting(false); // Arrêter le chargement
     }
   };
 
@@ -360,7 +392,15 @@ const AddCommandeScreen = ({ route, navigation }) => {
   };
 
   return (
+    
     <SafeAreaView style={styles.safeAreaView}>
+
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={styles.container}
+>
+
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-around', }}>
       <View style={styles.header}>
             <Text style={styles.headerText}>Ajouter une Commande</Text>
@@ -374,15 +414,34 @@ const AddCommandeScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+        <Toast visible={toastVisible} message={errorMessage} onDismiss={hideToast} />
 
         <View style={styles.form}>
-          <Text>Date de la commande:</Text>
+        <View style={{flexDirection: 'row', justifyContent:'space-between'}}>
+        <View style={{flexDirection:'column'}}>
+         <Text style={{paddingBottom:5}}>Date de la commande:</Text>
           <TouchableOpacity
             style={styles.button}
             onPress={() => showDatePicker('commande')}
           >
             <Text>{commandeDate.toISOString().split('T')[0]}</Text>
           </TouchableOpacity>
+         </View>
+
+          <View style={{flexDirection:'column'}}>
+          <Text style={{paddingBottom:5}}>Date d'Importation:</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => showDatePicker('importation')}
+          >
+            <Text>
+              {newProduit.DateImportation.toISOString().split('T')[0]}
+            </Text>
+          </TouchableOpacity>
+          </View>
+        </View>
+        
+
           {isCommandeDatePickerVisible && (
             <DateTimePicker
               value={commandeDate}
@@ -428,16 +487,6 @@ const AddCommandeScreen = ({ route, navigation }) => {
             keyboardType="numeric"
             placeholder="Entrez la quantité commandée"
           />
-
-          <Text>Date d'Importation:</Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => showDatePicker('importation')}
-          >
-            <Text>
-              {newProduit.DateImportation.toISOString().split('T')[0]}
-            </Text>
-          </TouchableOpacity>
           {isDateImportationPickerVisible && (
             <DateTimePicker
               value={newProduit.DateImportation}
@@ -490,7 +539,40 @@ const AddCommandeScreen = ({ route, navigation }) => {
       
 
 
-         <Modal
+ 
+
+
+
+        </View>
+        
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={openProductListModal}
+        >
+          <Text style={styles.submitButtonText}>
+            Produits ajoutés ({items.length})
+          </Text>
+        </TouchableOpacity>
+{/* <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleSubmitCommande}
+          disabled={isSubmitting} 
+        >
+           {isSubmitting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.submitButtonText}>Soumettre la commande</Text>
+          )}
+        </TouchableOpacity> */}
+
+
+
+
+
+
+        </KeyboardAvoidingView>
+        
+        <Modal
         visible={isFournisseurModalVisible}
         transparent={true}
         animationType="slide"
@@ -514,7 +596,8 @@ const AddCommandeScreen = ({ route, navigation }) => {
         </View>
       </Modal>
 
-      <Modal
+
+        <Modal
         visible={isProduitModalVisible}
         transparent={true}
         animationType="slide"
@@ -574,39 +657,76 @@ const AddCommandeScreen = ({ route, navigation }) => {
         </View>
       </Modal>
 
-        </View>
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.ProduitId.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.productCard}>
-              {/* <Text>Produit ID: {item.ProduitId}</Text> */}
-              <Text>Nom: {produitList.find((p) => p.id === item.ProduitId)?.NomProduit}</Text>
-              <Text>Code Entreprise Fournisseur: {item.CodeEntrepriseFournisseur}</Text>
-              <Text>Date d'Importation: {item.DateImportation}</Text>
-              <Text>Quantité Commandée: {item.QuantiteCommande}</Text>
-              <Text>Quantité Importée: {item.QuantiteImporter}</Text>
-              <View style={styles.MesIconsMdSup}>
-                {/* Bouton de suppression */}
-                <TouchableOpacity onPress={() => handleDeleteProduct(item.ProduitId)} style={styles.iconButton}>
-                  <MaterialCommunityIcons name="delete" size={24} color="red" />
-                </TouchableOpacity>
 
-                {/* Bouton d'édition */}
-                <TouchableOpacity onPress={() => handleEditProduct(item.ProduitId)} style={styles.iconButton}>
-                  <MaterialCommunityIcons name="pencil" size={24} color="blue" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        />
-
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleSubmitCommande}
+        <Modal
+          visible={isProductListModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={closeProductListModal}
         >
-          <Text style={styles.submitButtonText}>Soumettre la Commande</Text>
-        </TouchableOpacity>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', padding: 20 }}>
+        <View>
+        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Liste des Produits</Text>
+
+        </View>
+          <View>
+          <TouchableOpacity onPress={closeProductListModal}>
+            <MaterialCommunityIcons name="close" size={32} color="black" />
+          </TouchableOpacity>
+          </View>
+        </View>
+
+
+              {items.length === 0 ? (
+                <Text style={styles.noProductsText}>Aucun produit dans la liste.</Text>
+              ) : (
+                <FlatList
+                  data={items}
+                  keyExtractor={(item) => item.ProduitId.toString()}
+                  renderItem={({ item }) => (
+                    <View style={styles.productCard}>
+                      <View style={{ flexDirection: 'row' }}>
+                        <View>
+                          <Text>Nom: {produitList.find((p) => p.id === item.ProduitId)?.NomProduit}</Text>
+                          <Text>Quantité Commandée: {item.QuantiteCommande}</Text>
+                          <Text>Quantité Importée: {item.QuantiteImporter}</Text>
+                        </View>
+                        <View>
+                          <Image
+                            source={{ uri: produitList.find((p) => p.id === item.ProduitId)?.ImageProduit }}
+                            style={styles.productImage}
+                            resizeMode="cover"
+                          />
+                        </View>
+                      </View>
+                      <View style={styles.MesIconsMdSup}>
+                        <TouchableOpacity onPress={() => handleDeleteProduct(item.ProduitId)} style={styles.iconButton}>
+                          <MaterialCommunityIcons name="delete" size={24} color="red" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => { handleEditProduct(item.ProduitId); closeProductListModal(); }} style={styles.iconButton}>
+                          <MaterialCommunityIcons name="pencil" size={24} color="blue" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                />
+              )}
+              <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={handleSubmitCommande}
+                  disabled={isSubmitting} 
+                >
+                  {isSubmitting ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.submitButtonText}>Soumettre la commande</Text>
+                  )}
+                </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     );
 };

@@ -84,6 +84,8 @@ const CommandDetailsScreen = ({ route,navigation }) => {
               <Text style={styles.productDescription}>{item.produit.Description}</Text>
               <Text>Quantité commandée: {item.QuantiteCommande}</Text>
               <Text>Quantité importée: {item.QuantiteImporter}</Text>
+              <Text>Unité: {item.produit.unite.Nom} ({item.produit.unite.Symbol}) </Text>
+              <Text>Unité: {item.produit.forme.Nom}</Text>
             </View>
           </View>
         )}

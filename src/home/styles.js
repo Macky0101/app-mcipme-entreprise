@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 30,
+    minHeight: 70,
     paddingHorizontal: 24,
     marginBottom: 10
   },
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   modalButton: {
     padding: 10,
     margin: 10,
-    backgroundColor: '#2196F3', // Couleur bleue pour le bouton
+    backgroundColor: '#009900', // Couleur bleue pour le bouton
     borderRadius: 5,
   },
   modalButtonText: {
@@ -161,9 +161,9 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: '#009900', // Fond bleu
-    borderRadius: 8, // Coins légèrement arrondis
-    paddingVertical: 10, // Espace vertical à l'intérieur du bouton
-    paddingHorizontal: 20, // Espace horizontal à l'intérieur du bouton
+    borderRadius: 50, // Coins légèrement arrondis
+    paddingVertical: 5, // Espace vertical à l'intérieur du bouton
+    paddingHorizontal: 5, // Espace horizontal à l'intérieur du bouton
     
   },
   addButtonText: {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, StyleSheet, TouchableOpacity, TextInput, Image, Platform, ActivityIndicator ,ScrollView} from 'react-native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity, TextInput, Image, Platform, ActivityIndicator ,ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import { reconnectWithPin } from './../../services/apiService'; // Importer la fonction de connexion avec le code PIN
@@ -34,6 +34,10 @@ const PinInput = ({ onPinComplete }) => {
   };
 
   return (
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    style={styles.container}>
+
     <View style={styles.pinInputContainer}>
       {Platform.OS === 'ios' ? (
         <>
@@ -45,11 +49,9 @@ const PinInput = ({ onPinComplete }) => {
             style={styles.hiddenInput}
             autoFocus
           />
-          <TouchableOpacity>
             <View style={styles.circlesContainer}>
               {renderPinCircles()}
             </View>
-          </TouchableOpacity>
         </>
       ) : (
         <TextInput
@@ -63,6 +65,7 @@ const PinInput = ({ onPinComplete }) => {
         />
       )}
     </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -95,7 +98,12 @@ const PinScreen = () => {
   };
 
   return (
-   <ScrollView  style={{paddingTop:'30%'}}>
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={styles.container}
+>
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+   <ScrollView style={{padding:'10%'}} >
      <View style={styles.screen}>
       <Image
         style={styles.loginTopLogo}
@@ -104,13 +112,16 @@ const PinScreen = () => {
       />
       <Text style={styles.title}>Entrez votre code PIN :</Text>
       <PinInput onPinComplete={handlePinComplete} />
-<View style={{marginTop:40}}>
-{isLoading && <ActivityIndicator size="large" color="#009900" />} 
+      <View style={{marginTop:40}}>
+      {isLoading && <ActivityIndicator size="large" color="#009900" />} 
 
-</View>
+      </View>
     </View>
    </ScrollView>
+   </TouchableWithoutFeedback>
+   </KeyboardAvoidingView>
   );
+
 };
 
 

@@ -4,13 +4,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
 import { logout } from './../../services/apiService';
 import { MaterialIcons } from '@expo/vector-icons';
+import { CommonActions } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false); // Ajout de l'état isLoading
 
+
+
   const handleLogout = async () => {
-    setIsLoading(true); // Définir isLoading à true au début de la déconnexion
-    // Afficher une alerte de confirmation
+    setIsLoading(true);
     Alert.alert(
       'Déconnexion',
       'Êtes-vous sûr de vouloir vous déconnecter ?',
@@ -18,20 +20,23 @@ const ProfileScreen = ({ navigation }) => {
         {
           text: 'Annuler',
           style: 'cancel',
-          onPress: () => setIsLoading(false), // Réinitialiser isLoading si l'utilisateur annule
+          onPress: () => setIsLoading(false),
         },
         {
           text: 'Déconnexion',
           onPress: async () => {
             try {
-              await logout(); // Appeler la fonction de déconnexion
-              // Rediriger l'utilisateur vers l'écran de connexion par exemple
-              navigation.navigate('PinScreen');
-              // navigation.navigate('Login');
+              await logout();
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'PinScreen' }],
+                })
+              );
             } catch (error) {
               console.error('Error logging out:', error);
             } finally {
-              setIsLoading(false); // Réinitialiser isLoading une fois la déconnexion terminée
+              setIsLoading(false);
             }
           },
         },
@@ -103,11 +108,12 @@ const ProfileScreen = ({ navigation }) => {
          </TouchableOpacity>
          <View style={styles.separator}/>
 
-         <TouchableOpacity onPress={handleLogout}>
+         <TouchableOpacity onPress={handleLogout}
+          style={styles.logoutButton}>
             {isLoading ? (
-              <ActivityIndicator size="large" color="#009900" />
+              <ActivityIndicator size="large" color="#ffffff" />
             ) : (
-              <Text style={styles.logoutButton}>Déconnexion</Text>
+              <Text style={styles.deco}>Déconnexion</Text>
             )}
           </TouchableOpacity>
         </View>

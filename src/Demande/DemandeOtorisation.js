@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, Modal, FlatList, Button, Alert, ActivityIndicator} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, Modal, FlatList, Button, Alert, ActivityIndicator,KeyboardAvoidingView,Platform,TouchableWithoutFeedback, Keyboard} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -181,9 +181,12 @@ const DemandeOtorisation = () => {
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
-<ScrollView
-showsVerticalScrollIndicator={false}
->
+ <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+         <ScrollView contentContainerStyle={styles.inner}>
 <View style={styles.sectionHeading}>
         <Text style={styles.sectionHeadingText}>
           Demande d'Autorisation
@@ -271,7 +274,7 @@ showsVerticalScrollIndicator={false}
             )}
           />
           <View style={styles.buttonContainer}>
-            <Button title="Fermer" onPress={closeTypeDemandeModal} color="#ff5c5c" />
+            <Button title="Fermer" onPress={closeTypeDemandeModal} color="#009900" />
           </View>
         </View>
       </View>
@@ -284,7 +287,9 @@ showsVerticalScrollIndicator={false}
             animationType="slide"
             onRequestClose={closeChoixModal}
           >
-            <View style={styles.modalContainer}>
+
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
               <FlatList
                 data={[{ label: 'NON', value: 'NON' }, { label: 'OUI', value: 'OUI' }]}
                 keyExtractor={(item) => item.value}
@@ -297,7 +302,12 @@ showsVerticalScrollIndicator={false}
                   </TouchableOpacity>
                 )}
               />
-              <Button title="Fermer" onPress={closeChoixModal} />
+          <View style={styles.buttonContainer}>
+              
+              <Button title="Fermer" onPress={closeChoixModal} color="#009900" />
+           
+            </View>
+            </View>
             </View>
           </Modal>
         {/* <TouchableOpacity onPress={() => selectDocument('fileCarteBiometric')} style={styles.filePickerButton}>
@@ -399,7 +409,10 @@ showsVerticalScrollIndicator={false}
 </TouchableOpacity>
 
       </View>
-</ScrollView>
+      </ScrollView>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+
     </SafeAreaView>
   );
 };

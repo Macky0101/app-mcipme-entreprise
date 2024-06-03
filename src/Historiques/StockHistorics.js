@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, ActivityIndicator, SafeAreaView, RefreshControl, Animated, TextInput } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, ActivityIndicator, SafeAreaView, RefreshControl, Animated, TextInput, Modal, TouchableOpacity } from 'react-native';
 import { GetStockHistorics } from './../../services/stock.Service';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -8,15 +8,15 @@ const StockHistorics = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const toastAnimation = useRef(new Animated.Value(0)).current; 
   const [searchText, setSearchText] = useState('');
   const [filteredHistorics, setFilteredHistorics] = useState([]);
-
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const toastAnimation = useRef(new Animated.Value(0)).current;
 
   const handleSearch = (text) => {
     setSearchText(text);
     const filteredData = historics.filter(item =>
-      item.historics[0]?.stock_produit?.produit?.NomProduit.toLowerCase().includes(text.toLowerCase())
+      item?.historics?.[0]?.stock_produit?.produit?.NomProduit.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredHistorics(filteredData);
   };
@@ -58,7 +58,6 @@ const StockHistorics = () => {
       setRefreshing(false); // Arrête le rafraîchissement si nécessaire
     }
   }, []);
-  
 
   useEffect(() => {
     fetchStockHistorics(); // Chargement initial des données
@@ -70,22 +69,28 @@ const StockHistorics = () => {
   };
 
   const renderHistoricItem = ({ item }) => {
-    const product = item.historics[0]?.stock_produit?.produit || {};
+    const product = item?.historics?.[0]?.stock_produit?.produit || {};
     return (
-      <View style={styles.historicItem}>
-         {product.ImageProduit ? (
-          <Image
-            source={{ uri: product.ImageProduit }}
-            style={styles.productImage}
-          />
-        ) : (
-          <Text style={styles.noImageText}>Aucune image disponible</Text>
-        )}
+      <TouchableOpacity style={styles.historicItem} onPress={() => setSelectedProduct(item)}>
+        <Image
+          source={{ uri: product.ImageProduit }}
+          style={styles.productImage}
+        />
         <Text style={styles.productName}>{product.NomProduit || 'Produit Inconnu'}</Text>
-        <Text style={styles.stockInfo}>{product.Description || 'Description Inconnu'}</Text>
-        <Text style={styles.stockInfo}>Quantité Réelle: {item.QuantiteReel}</Text>
-        <Text style={styles.stockInfo}>Date de Mise à Jour: {item.DateDeMiseAJourStock}</Text>
-       
+      </TouchableOpacity>
+    );
+  };
+
+  const renderGridItem = ({ item, index }) => {
+    if (index % 3 !== 0) return null; // Nous ne rendons que le premier élément de chaque ligne
+
+    return (
+      <View style={styles.row}>
+        {filteredHistorics.slice(index, index + 3).map((subItem, subIndex) => (
+          <View key={index + subIndex} style={{ flex: 1 }}>
+            {renderHistoricItem({ item: subItem })}
+          </View>
+        ))}
       </View>
     );
   };
@@ -118,8 +123,8 @@ const StockHistorics = () => {
       </View>
       <FlatList
         data={filteredHistorics}
-        renderItem={renderHistoricItem}
-        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderGridItem}
+        keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContainer}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
@@ -128,6 +133,39 @@ const StockHistorics = () => {
           <Text style={styles.toastText}>{errorMessage}</Text>
         </Animated.View>
       ) : null}
+      {selectedProduct && (
+        <Modal
+          visible={true}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setSelectedProduct(null)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedProduct?.historics?.[0]?.stock_produit?.produit?.NomProduit || 'Produit Inconnu'}</Text>
+              {selectedProduct?.historics?.[0]?.stock_produit?.produit?.ImageProduit ? (
+                <Image
+                  source={{ uri: selectedProduct.historics[0].stock_produit.produit.ImageProduit }}
+                  style={styles.productImage}
+                />
+              ) : (
+                <Text style={styles.noImageText}>Aucune image disponible</Text>
+              )}
+              {/* <Text style={styles.stockInfo}>Unité: {selectedProduct?.historics?.[0]?.stock_produit?.produit?.unite?.Symbol || 'Inconnu'}</Text> */}
+              <Text style={styles.stockInfo}> Description:</Text>
+              <Text > {selectedProduct?.historics?.[0]?.stock_produit?.produit?.Description || 'Description Inconnue'}</Text>
+              <Text style={styles.stockInfo}>Quantité Réelle:</Text>
+              <Text > {selectedProduct.QuantiteReel} {selectedProduct?.historics?.[0]?.stock_produit?.produit?.unite?.Symbol || 'Inconnu'}</Text>
+              {/* <Text style={styles.stockInfo}>Forme: {selectedProduct?.historics?.[0]?.stock_produit?.produit?.forme?.Nom || 'Inconnu'}</Text> */}
+              <Text style={styles.stockInfo}>Date de Mise à Jour: </Text>
+              <Text > {selectedProduct.DateDeMiseAJourStock}</Text>
+              <TouchableOpacity onPress={() => setSelectedProduct(null)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Fermer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 };
@@ -141,7 +179,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 30,
+    minHeight: 70,
     paddingHorizontal: 24,
     marginBottom: 10
   },
@@ -161,30 +199,32 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 16,
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16, // Espace entre les rangées
+  },
   historicItem: {
-    backgroundColor: '#f9f9f9',
+    flex: 1,
     padding: 16,
-    marginVertical: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
+    margin: 4,
+    alignItems: 'center', // Centre l'image et le texte
+  },
+  productImage: {
+    width: 100, // Ajustez la taille selon vos besoins
+    height: 100, // Ajustez la taille selon vos besoins
+    borderRadius: 50, // Assure que l'image est ronde
+    marginBottom: 8, // Espace entre l'image et le texte
   },
   productName: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   stockInfo: {
     fontSize: 14,
     marginVertical: 4,
-  },
-  productImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 8,
+    color:'#009900'
   },
   noImageText: {
     color: '#999',
@@ -224,6 +264,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     padding: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color:'#009900'
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#009900',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 

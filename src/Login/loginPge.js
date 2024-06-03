@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Platform, ActivityIndicator ,  KeyboardAvoidingView, TouchableWithoutFeedback,Keyboard, ScrollView,} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { login } from './../../services/apiService'; 
 import {SendOtp} from './../../services/apiService';
@@ -64,6 +64,11 @@ const getIntituleTypes = (typesEntreprise) => {
   
   return (
      <SafeAreaView style={styles.safeAreaView}>
+      <KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={styles.container}
+>
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
       <ScrollView vertical={true} showsVerticalScrollIndicator={true}>
         <View style={styles.loginTop}>
@@ -132,6 +137,8 @@ const getIntituleTypes = (typesEntreprise) => {
 
         </ScrollView>
       </View>
+      </TouchableWithoutFeedback>
+</KeyboardAvoidingView>
      </SafeAreaView>
   );
 };

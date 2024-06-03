@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 30,
+    minHeight: 70,
     paddingHorizontal: 24,
     marginBottom: 10
   },
@@ -49,8 +49,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Pour espacer les cartes
     flexWrap: 'wrap', // Pour permettre aux cartes de s'adapter
   },
+  mestotaux: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center', // Center items vertically
+  },
+  contenttotaux: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   walletContainer: {
-    backgroundColor: '#009900',
+    backgroundColor: '#009960',
     padding: 20,
     borderRadius: 8,
     marginBottom: 16,
@@ -58,19 +67,24 @@ const styles = StyleSheet.create({
   walletText: {
     color: '#FFF',
     fontSize: 18,
-    marginBottom:7,
+    marginBottom: 7,
   },
   walletAmount: {
     color: '#FFF',
     fontSize: 32,
     fontWeight: 'bold',
   },
-  walletCard: {
+  separator: {
+    width: 1,
+    height: '100%', // Match the height of the container
+    backgroundColor: '#FFF', // White color for the separator
+    marginHorizontal: 20, // Space around the separator
+  },
+    walletCard: {
     color: '#FFF',
-    fontSize: 16,
-    marginTop: 8,
+    fontSize: 13,
+    marginTop: 15,
     justifyContent: 'flex-end',
-
   },
   ListProduc:{
     flexDirection: 'row',
@@ -93,56 +107,76 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Texte en gras
   },
   historicsContainer: {
-    marginTop: 20,
+    marginTop: 2,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  historicBox: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginRight: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5,
-    width: 200, 
-    marginBottom:15
+  listContainer: {
+    padding: 5,
   },
-  historicDate: {
-    fontSize: 16,
-    color: '#333',
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16, // Espace entre les rangées
   },
-  historicProduit: {
-    fontSize: 16,
-    color: '#666',
-    marginVertical: 5,
+  historicItem: {
+    flex: 1,
+    padding: 16,
+    margin: 4,
+    alignItems: 'center', // Centre l'image et le texte
   },
-  historicQuantite: {
-    fontSize: 16,
-    color: '#666',
-  },
-  historicImage: {
-    width: '100%',
-    height: 100,
-    borderRadius: 10,
-    marginTop: 10,
-    marginBottom:5
-  },
-  noImageText: {
-    fontSize: 14,
-    color: '#999',
-    marginTop: 10,
+  productImage: {
+    width: 100, // Ajustez la taille selon vos besoins
+    height: 100, // Ajustez la taille selon vos besoins
+    borderRadius: 50, // Assure que l'image est ronde
+    marginBottom: 8, // Espace entre l'image et le texte
   },
   productName: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
- 
+  stockInfo: {
+    fontSize: 14,
+    marginVertical: 4,
+    color:'#009900'
+  },
+  noImageText: {
+    color: '#999',
+    marginTop: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color:'#009900'
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#009900',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
 
 export default styles;

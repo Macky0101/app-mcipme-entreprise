@@ -211,7 +211,7 @@ const HomeScreen = () => {
         <View style={styles.sectionHeading}>
           <View style={styles.sectionHeadingMain}>
             <Text style={styles.sectionHeadingText} numberOfLines={1}>
-              Stock
+              Mes commandes
             </Text>
           </View>
           <View style={styles.buttonContainer}>
@@ -219,7 +219,8 @@ const HomeScreen = () => {
         onPress={handleAddButtonPress}
         style={styles.addButton} 
       >
-        <Text style={styles.addButtonText}>Ajout Com</Text> 
+       <MaterialIcons name="add" size={24} color="white"/>
+        {/* <Text style={styles.addButtonText}>Ajout Com</Text>  */}
       </TouchableOpacity>
     </View>
         </View>

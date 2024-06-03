@@ -4,9 +4,10 @@ const styles = StyleSheet.create({
         submitButton: {
           backgroundColor: '#009900',
           padding: 10,
+          margin: 10,
           borderRadius: 5,
           alignItems: 'center',
-          marginTop: 10,
+          // marginTop: 40,
         },
         submitButtonText: {
           color: '#ffffff',
@@ -235,6 +236,11 @@ const styles = StyleSheet.create({
           color: '#00796b',
         },
       
-
+        noProductsText: {
+          textAlign: 'center',
+          fontSize: 16,
+          color: 'gray',
+          marginTop: 20,
+        },
 });
 export default styles;

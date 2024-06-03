@@ -102,7 +102,7 @@ const Generale = ({ navigation }) => {
       <View style={styles.sectionHeading}>
           <View style={styles.sectionHeadingMain}>
           <Text style={styles.sectionHeadingText} numberOfLines={1}>
-              Données generale
+              Données générales
             </Text>
           </View>
         </View>

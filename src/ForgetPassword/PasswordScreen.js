@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator,ScrollView } from 'react-native';
+import { View, Text, Alert, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator,ScrollView ,KeyboardAvoidingView,Platform,TouchableWithoutFeedback,Keyboard} from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { changePassword, logout } from './../../services/apiService';
@@ -77,7 +77,12 @@ const ChangePasswordScreen = () => {
   };
 
   return (
-<ScrollView style={{paddingTop:'30%'}}>
+    <KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={styles.container}
+>
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+<ScrollView style={{paddingTop:'15%'}}>
 <View style={styles.screen}>
       <Text style={styles.title}>Changer le mot de passe</Text>
       <View style={styles.inputContainer}>
@@ -138,6 +143,8 @@ const ChangePasswordScreen = () => {
       <Toast visible={toastVisible} message={errorMessage} onDismiss={hideToast} />
     </View>
 </ScrollView>
+</TouchableWithoutFeedback>
+</KeyboardAvoidingView>
   );
 };
 

@@ -1,49 +1,52 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import axios from 'axios';
 import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Animatable from 'react-native-animatable';
+import { useFocusEffect } from '@react-navigation/native';
 
 const GraphiqueProduits = () => {
   const [chartData, setChartData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    const fetchCommandesData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('@token');
-        const pme = await AsyncStorage.getItem('codeMPMEs');
+  const fetchCommandesData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('@token');
+      const pme = await AsyncStorage.getItem('codeMPMEs');
 
-        if (!token || !pme) {
-          setErrorMessage('Token ou code PME manquant.');
-          return;
-        }
-
-        const response = await axios.get('https://bd-mcipme.org/bd-services/public/api/commandes', {
-          headers: { Authorization: `Bearer ${token}` },
-          params: {
-            statut: null,
-            pme: pme,
-          },
-        });
-
-        if (response.data && response.data.status === 'success') {
-          const commandes = response.data.data;
-          const data = prepareChartData(commandes);
-          setChartData(data);
-        } else {
-          setErrorMessage('Erreur dans la réponse de l\'API.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des commandes:', error);
-        setErrorMessage('Erreur lors de la récupération des commandes.');
+      if (!token || !pme) {
+        setErrorMessage('Token ou code PME manquant.');
+        return;
       }
-    };
 
-    fetchCommandesData();
-  }, []);
+      const response = await axios.get('https://bd-mcipme.org/bd-services/public/api/commandes', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          statut: null,
+          pme: pme,
+        },
+      });
+
+      if (response.data && response.data.status === 'success') {
+        const commandes = response.data.data;
+        const data = prepareChartData(commandes);
+        setChartData(data);
+      } else {
+        setErrorMessage('Erreur dans la réponse de l\'API.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commandes:', error);
+      setErrorMessage('Erreur lors de la récupération des commandes.');
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCommandesData();
+    }, [])
+  );
 
   const prepareChartData = (commandes) => {
     let totalImportations = 0;
@@ -74,14 +77,15 @@ const GraphiqueProduits = () => {
   const chartConfig = {
     backgroundGradientFrom: '#ffffff',
     backgroundGradientTo: '#ffffff',
-    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Couleur des axes et du texte
-    barPercentage: 3,
-    fillShadowGradientFrom: '#009900', // Dégradé pour les barres d'importation
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    barPercentage: 2.5,
+    fillShadowGradientFrom: '#009900',
     fillShadowGradientFromOpacity: 1,
-    fillShadowGradientTo: '#36a2eb', // Dégradé pour les barres de distribution
+    fillShadowGradientTo: '#36a2eb',
     fillShadowGradientToOpacity: 1,
     decimalPlaces: 0,
   };
+
   return (
     <Animatable.View animation="fadeInUpBig" duration={1500}>
       {chartData ? (
@@ -89,7 +93,7 @@ const GraphiqueProduits = () => {
           data={chartData}
           width={screenWidth}
           height={220}
-          yAxisLabel="Nbr Cd "
+          yAxisLabel=""
           chartConfig={chartConfig}
           verticalLabelRotation={0}
           fromZero
@@ -107,6 +111,7 @@ const GraphiqueProduits = () => {
 };
 
 export default GraphiqueProduits;
+
 
 
 

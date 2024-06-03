@@ -48,7 +48,7 @@ const IdentificationCommer = ({ navigation }) => {
         <View style={styles.separator}></View>
         </TouchableOpacity>
        <TouchableOpacity style={styles.List}>
-        <Text>Code Statut Juridique: {item.data.detail.CodeStatutJuridique || "Données non disponibles"}</Text>
+        <Text>Statut Juridique: {item.data.detail.statut_juridique.NomStatutJuridique || "Données non disponibles"}</Text>
         <View style={styles.separator}></View>
        </TouchableOpacity>
        <TouchableOpacity style={styles.List}>
