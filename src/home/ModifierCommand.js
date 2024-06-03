@@ -478,7 +478,7 @@ const ModifyCommandeScreen = ({ route, navigation }) => {
             <Text style={styles.submitButtonText}>Soumettre la commande</Text>
           )}
         </TouchableOpacity>
-      <Modal visible={isProduitModalVisible} onRequestClose={closeProduitModal}>
+      {/* <Modal visible={isProduitModalVisible} onRequestClose={closeProduitModal}>
         <View style={{ padding: 20 }}>
           <FlatList
             data={produitList}
@@ -491,7 +491,7 @@ const ModifyCommandeScreen = ({ route, navigation }) => {
           />
           <Button title="Fermer" onPress={closeProduitModal} />
         </View>
-      </Modal>
+      </Modal> */}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
